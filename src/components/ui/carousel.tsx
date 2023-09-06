@@ -14,12 +14,12 @@ const FALLBACK_WIDTH = 509
 
 const CURSOR_SIZE = 80
 
-type ImageData = {
+interface ImageData {
     title: string;
     url: string;
 }
 
-type CarouselProps = {
+interface CarouselProps {
     images: ImageData[];
 }
 
@@ -273,7 +273,7 @@ const Carousel = ({ images }: CarouselProps) => {
           disabled={!canScrollPrev}
         >
           <span className="sr-only">Previous Guide</span>
-          <MoveLeft className="h-10 w-10 stroke-[1.5] transition-colors group-enabled:group-hover:text-gray-900 group-disabled:opacity-50" />
+          <MoveLeft className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
         </button>
         <button
           type="button"
@@ -289,7 +289,7 @@ const Carousel = ({ images }: CarouselProps) => {
           disabled={!canScrollNext}
         >
           <span className="sr-only">Next Guide</span>
-          <MoveRight className="h-10 w-10 stroke-[1.5] transition-colors group-enabled:group-hover:text-gray-900 group-disabled:opacity-50" />
+          <MoveRight className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
         </button>
       </div>
     </div>

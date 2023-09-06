@@ -1,4 +1,6 @@
 export default function checkMobile(): boolean {
-    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    // if (typeof window === 'undefined') return false; // Don't know why but this broke mobile detection partially
+    
+    const isMobile = window.matchMedia('(max-width: 720px)').matches;
     return isMobile;
 }
