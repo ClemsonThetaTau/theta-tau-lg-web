@@ -15,15 +15,15 @@ const FALLBACK_WIDTH = 509
 const CURSOR_SIZE = 80
 
 interface ImageData {
-    title: string;
-    url: string;
+  title: string
+  url: string
 }
 
 interface CarouselProps {
-    images: ImageData[];
+  images: ImageData[]
 }
 
-const Carousel = ({ images }: CarouselProps) => {
+const Carousel: React.FC<CarouselProps> = ({ images }) => {
   let isMobile = checkMobile()
   const START_INDEX = isMobile ? 0 : 1
 
@@ -96,7 +96,7 @@ const Carousel = ({ images }: CarouselProps) => {
           : (offsetWidth -= nextItemWidth)
         continue
       }
-      
+
       if (dragOffset > 0) {
         //prev
         offsetX.set(currentOffset + offsetWidth + prevItemWidth)
@@ -178,93 +178,100 @@ const Carousel = ({ images }: CarouselProps) => {
     <div className="group container mx-6 px-0 min-w-[320px] w-full">
       <div className="relative px-2">
         <div className="relative overflow-hidden">
-        <motion.ul
-          ref={containerRef}
-          className="flex items-start"
-          style={{
-            x: animatedX,
-            
-          }}
-          drag="x"
-          dragConstraints={{
-            left: -(FALLBACK_WIDTH * (images.length - 1)),
-            right: FALLBACK_WIDTH,
-          }}
-          onMouseMove={({ currentTarget, clientX, clientY }) => {
-            const parent = currentTarget.offsetParent
-            if (!parent) return
-            const { left, top } = parent.getBoundingClientRect()
-            mouseX.set(clientX - left - CURSOR_SIZE / 2)
-            mouseY.set(clientY - top - CURSOR_SIZE / 2)
-          }}
-          onDragStart={() => {
-            containerRef.current?.setAttribute('data-dragging', 'true')
-            setIsDragging(true)
-          }}
-          onDragEnd={handleDragSnap}
-        >
-          {images.map((img, index) => {
-            const active = index === activeSlide
-            return (
-              <motion.li
-                layout
-                key={img.title}
-                ref={(el) => (itemsRef.current[index] = el)}
-                className={cn(
-                  'group relative shrink-0 select-none px-3 transition-opacity duration-300',
-                  !active && 'opacity-30'
-                )}
-                transition={{
-                  ease: 'easeInOut',
-                  duration: 0.4,
-                }}
-                style={{
-                  flexBasis: isMobile ? active ? '100%' : '90%' : active ? '40%' : '30%',
-                }}
-              >
-                <div className='block' draggable={false}>
-                    <div className={cn(
-                        "relative grid place-content-center overflow-hidden",
-                        active ? "aspect-[5/3]" : "aspect-[4/3]",
-                      )}>
-                    <Image
-                    src={img.url}
-                    alt="Carousel Image"
-                    fill={true}
-                    draggable={false}
-                    sizes='40vw, 30vw'
-                    className="object-cover h-full rounded-lg bg-gray-900"
-                    />
-                    </div>
-                </div>
-                <div
+          <motion.ul
+            ref={containerRef}
+            className="flex items-start"
+            style={{
+              x: animatedX,
+            }}
+            drag="x"
+            dragConstraints={{
+              left: -(FALLBACK_WIDTH * (images.length - 1)),
+              right: FALLBACK_WIDTH,
+            }}
+            onMouseMove={({ currentTarget, clientX, clientY }) => {
+              const parent = currentTarget.offsetParent
+              if (!parent) return
+              const { left, top } = parent.getBoundingClientRect()
+              mouseX.set(clientX - left - CURSOR_SIZE / 2)
+              mouseY.set(clientY - top - CURSOR_SIZE / 2)
+            }}
+            onDragStart={() => {
+              containerRef.current?.setAttribute('data-dragging', 'true')
+              setIsDragging(true)
+            }}
+            onDragEnd={handleDragSnap}
+          >
+            {images.map((img, index) => {
+              const active = index === activeSlide
+              return (
+                <motion.li
+                  layout
+                  key={img.title}
+                  ref={(el) => (itemsRef.current[index] = el)}
                   className={cn(
-                    'mt-4 flex justify-center',
-                    !active && 'hidden'
+                    'group relative shrink-0 select-none px-3 transition-opacity duration-300',
+                    !active && 'opacity-30'
                   )}
+                  transition={{
+                    ease: 'easeInOut',
+                    duration: 0.4,
+                  }}
+                  style={{
+                    flexBasis: isMobile
+                      ? active
+                        ? '100%'
+                        : '90%'
+                      : active
+                      ? '40%'
+                      : '30%',
+                  }}
                 >
-                  <Link
-                    href={img.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xl font-bold leading-tight transition-colors"
-                    draggable={false}
-                    onClick={disableDragClick}
+                  <div className="block" draggable={false}>
+                    <div
+                      className={cn(
+                        'relative grid place-content-center overflow-hidden',
+                        active ? 'aspect-[5/3]' : 'aspect-[4/3]'
+                      )}
+                    >
+                      <Image
+                        src={img.url}
+                        alt="Carousel Image"
+                        fill={true}
+                        draggable={false}
+                        sizes="40vw, 30vw"
+                        className="object-cover h-full rounded-lg bg-gray-900"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      'mt-4 flex justify-center',
+                      !active && 'hidden'
+                    )}
                   >
-                    {img.title}
-                  </Link>
-                </div>
-              </motion.li>
-            )
-          })}
-        </motion.ul>
+                    <Link
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xl font-bold leading-tight transition-colors"
+                      draggable={false}
+                      onClick={disableDragClick}
+                    >
+                      {img.title}
+                    </Link>
+                  </div>
+                </motion.li>
+              )
+            })}
+          </motion.ul>
         </div>
         <button
           type="button"
-          className={
-            cn("group absolute z-20 grid aspect-square place-content-center rounded-full transition-colors",
-            isMobile ? 'left-[12%] -bottom-1/3' : 'left-[24%] top-1/3')
-          }
+          className={cn(
+            'group absolute z-20 grid aspect-square place-content-center rounded-full transition-colors',
+            isMobile ? 'left-[12%] -bottom-1/3' : 'left-[24%] top-1/3'
+          )}
           style={{
             width: CURSOR_SIZE,
             height: CURSOR_SIZE,
@@ -277,10 +284,10 @@ const Carousel = ({ images }: CarouselProps) => {
         </button>
         <button
           type="button"
-          className={
-            cn("group absolute z-20 grid aspect-square place-content-center rounded-full transition-colors",
-            isMobile ? 'right-[12%] -bottom-1/3' : 'right-[24%] top-1/3')
-          }
+          className={cn(
+            'group absolute z-20 grid aspect-square place-content-center rounded-full transition-colors',
+            isMobile ? 'right-[12%] -bottom-1/3' : 'right-[24%] top-1/3'
+          )}
           style={{
             width: CURSOR_SIZE,
             height: CURSOR_SIZE,
@@ -296,4 +303,4 @@ const Carousel = ({ images }: CarouselProps) => {
   )
 }
 
-export { Carousel }
+export { Carousel, ImageData }

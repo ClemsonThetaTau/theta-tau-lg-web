@@ -5,7 +5,7 @@ export default function Pillars() {
   return (
     <section className="my-8 mx-4 md:mx-8 py-8 px-4 md:px-24">
       <div className="space-y-1">
-        <h3 className="text-3xl font-light leading-none text-center">
+        <h3 className="text-3xl md:text-5xl font-light leading-none text-center">
           The Three Pillars of Theta Tau
         </h3>
       </div>
@@ -73,7 +73,7 @@ export default function Pillars() {
             <li>Finals Week Library Camp Out</li>
           </ul>
         </div>
-        <Separator className='self-stretch h-auto' orientation="vertical" />
+        <Separator className="self-stretch h-auto" orientation="vertical" />
         <div>
           <div className="text-center">
             <div className="flex justify-center">
