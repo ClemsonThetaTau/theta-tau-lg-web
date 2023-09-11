@@ -6,8 +6,8 @@ import { NavItem } from './nav-item'
 
 export default function NavBar() {
   return (
-    <nav className="fixed z-50 top-0 w-full">
-      <div className="w-full flex items-center justify-center flex-wrap bg-background/50 p-4 backdrop-filter backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full bg-background/50 backdrop-filter backdrop-blur-md">
+      <div className="w-full flex items-center justify-center flex-wrap p-4">
         <div className="flex items-center flex-shrink-0 mr-12">
           <Image
             src="/images/logo-2.png"

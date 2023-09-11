@@ -8,7 +8,7 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ href, children }) => {
   return (
     <a
-      href="#responsive-header"
+      href={href}
       className="block mt-4 lg:inline-block hover:text-red-400 transition-colors lg:mt-0 mr-4"
     >
       {children}
