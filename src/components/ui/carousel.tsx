@@ -23,6 +23,9 @@ interface CarouselProps {
   images: ImageData[]
 }
 
+// THIS CODE IS HORRIBLE BUT IT WORKS FOR NOW SO I'M NOT GONNA TOUCH IT
+// -- AP
+
 const Carousel: React.FC<CarouselProps> = ({ images }) => {
   let isMobile = checkMobile()
   const START_INDEX = isMobile ? 0 : 1
@@ -303,4 +306,5 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
   )
 }
 
-export { Carousel, ImageData }
+export default Carousel
+export type { ImageData }
