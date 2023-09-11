@@ -1,26 +1,12 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 
 import { SocialButton } from '@/components/ui/socials'
 import { Facebook, Instagram, Mail } from 'lucide-react'
 
 const SocialsFooter: React.FC = () => {
-  const [scrollPosition, setScrollPosition] = useState(0)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
-
   return (
-    <div style={{ backgroundPositionY: `${scrollPosition}px`}} className="relative w-full h-96 bg-bottom bg-cover bg-death-valley">
+    <div className="relative w-full h-96 bg-bottom bg-cover bg-fixed bg-[url('/images/photos/death-valley-balloons.jpg')]">
       <div  className="w-full h-full backdrop-filter backdrop-blur-md" />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-10">
         <h3 className="text-primary-foreground text-xl md:text-4xl font-bold mb-8">
