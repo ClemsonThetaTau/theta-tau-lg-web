@@ -73,9 +73,6 @@ module.exports = {
       height: {
         '128': '32rem',
       },
-      backgroundImage: {
-        'death-valley': "url('/images/photos/death-valley-balloons.jpg')",
-      }
     },
   },
   plugins: [require("tailwindcss-animate")],
