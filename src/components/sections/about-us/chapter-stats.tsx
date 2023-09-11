@@ -2,6 +2,7 @@
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
+import { ChartOptions } from 'chart.js/auto';
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -44,7 +45,7 @@ export default function ChapterStats() {
     ],
   }
 
-  const options = {
+  const options: ChartOptions<'doughnut'> = {
     maintainAspectRatio: false,
     plugins: {
       legend: {

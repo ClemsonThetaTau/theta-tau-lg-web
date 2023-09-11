@@ -4,7 +4,7 @@ export default function Banner() {
   return (
     <div className="relative w-full h-128">
       <Image
-        src="/images/bowman.jpg"
+        src="/images/photos/bowman.jpg"
         fill={true}
         alt="Banner Image"
         className="object-cover bg-gray-900"
