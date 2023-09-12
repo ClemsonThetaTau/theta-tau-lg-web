@@ -44,7 +44,7 @@ export default function Home() {
         <p className="text-white text-lg md:text-2xl font-light tracking-wide mb-4 text-center">
           Check out our Rush section for more information
         </p>
-        <Button variant={'outline'}>Rush Information</Button>
+        <Button variant={'outlineSecondary'}>Rush Information</Button>
       </div>
       <Pillars />
       <SocialsFooter />
