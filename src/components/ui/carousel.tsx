@@ -4,7 +4,7 @@ import { MouseEvent as ReactMouseEvent, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useMotionValue, useSpring, type PanInfo } from 'framer-motion'
-import { MoveLeft, MoveRight } from 'lucide-react'
+import { BsArrowLeft, BsArrowRight } from 'react-icons/bs'
 import checkMobile from '@/lib/check-mobile'
 
 import { cn } from '@/lib/utils'
@@ -283,7 +283,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
           disabled={!canScrollPrev}
         >
           <span className="sr-only">Previous Guide</span>
-          <MoveLeft className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
+          <BsArrowLeft className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
         </button>
         <button
           type="button"
@@ -299,7 +299,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
           disabled={!canScrollNext}
         >
           <span className="sr-only">Next Guide</span>
-          <MoveRight className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
+          <BsArrowRight className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
         </button>
       </div>
     </div>

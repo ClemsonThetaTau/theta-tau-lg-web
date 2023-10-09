@@ -2,7 +2,7 @@
 import React from 'react'
 
 import { SocialButton } from '@/components/ui/socials'
-import { Facebook, Instagram, Mail } from 'lucide-react'
+import { AiFillFacebook, AiFillInstagram, AiFillMail } from 'react-icons/ai'
 
 const SocialsFooter: React.FC = () => {
   return (
@@ -14,9 +14,9 @@ const SocialsFooter: React.FC = () => {
           brothers!
         </h3>
         <div className="flex flex-row items-center justify-center space-x-4">
-            <SocialButton icon={<Facebook />} link='https://www.facebook.com/ClemsonThetaTau/'/>
-            <SocialButton icon={<Instagram />} link='https://www.instagram.com/clemsonthetatau'/>
-            <SocialButton icon={<Mail />} link='mailto:lambda.gamma@thetatau.org'/>
+            <SocialButton icon={<AiFillFacebook />} link='https://www.facebook.com/ClemsonThetaTau/'/>
+            <SocialButton icon={<AiFillInstagram />} link='https://www.instagram.com/clemsonthetatau'/>
+            <SocialButton icon={<AiFillMail />} link='mailto:lambda.gamma@thetatau.org'/>
         </div>
       </div>
     </div>

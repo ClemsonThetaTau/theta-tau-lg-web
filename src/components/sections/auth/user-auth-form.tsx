@@ -3,7 +3,8 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
-import { Icons } from "@/components/icons"
+import { BiLogoGithub } from "react-icons/bi"
+import { ImSpinner3 } from "react-icons/im"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,7 +43,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
           <Button disabled={isLoading}>
             {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              <ImSpinner3 className="mr-2 h-4 w-4 animate-spin" />
             )}
             Sign In with Email
           </Button>
@@ -60,9 +61,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       </div>
       <Button variant="outline" type="button" disabled={isLoading}>
         {isLoading ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          <ImSpinner3 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <Icons.gitHub className="mr-2 h-4 w-4" />
+          <BiLogoGithub className="mr-2 h-4 w-4" />
         )}{" "}
         Github
       </Button>

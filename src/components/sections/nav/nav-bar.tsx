@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import { LogIn } from 'lucide-react'
+import { BiLogIn } from 'react-icons/bi'
 
 import { Separator } from '@/components/ui/separator'
 import { NavItem } from './nav-item'
@@ -25,7 +25,7 @@ export default function NavBar() {
           <NavItem href="/rush">Rush</NavItem>
         </div>
         <a className="hover:text-accent-foreground transition-colors" href='/login'>
-          <LogIn />
+          <BiLogIn className="h-6 w-6"/>
         </a>
       </div>
       <Separator className="w-full bg-gray-200" />
