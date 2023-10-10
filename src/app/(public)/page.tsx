@@ -9,23 +9,15 @@ import DynamicCarousel from '@/components/ui/dynamic-carousel'
 
 const images: ImageData[] = [
   {
-    title: 'Bowman Feild',
-    url: '/images/photos/bowman.jpg',
+    title: 'Bowman!',
+    url: '/images/photos/carousel/bowman-fun.jpg',
   },
   {
-    title: 'Gavin Electric',
-    url: '/images/photos/gavin-electric.jpg',
+    title: 'STEM Night',
+    url: '/images/photos/carousel/gavin-electric.jpg',
   },
   {
     title: 'Bowman Feild2',
-    url: '/images/photos/bowman.jpg',
-  },
-  {
-    title: 'Gavin Electric2',
-    url: '/images/photos/gavin-electric.jpg',
-  },
-  {
-    title: 'Bowman Feild3',
     url: '/images/photos/bowman.jpg',
   },
 ]
