@@ -5,7 +5,20 @@ import { Brother } from '@/components/sections/brothers/brother'
 import { Headshot } from '@/components/sections/brothers/headshot'
 
 import { db } from '@/firebase/config'
-import { collection, getDocs } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
+
+interface PublicBrother {
+  firstName: string;
+  lastName: string;
+  displayEmail: string;
+  major: string;
+  profilePicture: string;
+}
+
+interface PublicData {
+  brotherList: { [key: string]: PublicBrother };
+  displayOrder: string[];
+}
 
 export default function Brothers() {
   const [brothers, setBrothers] = useState<Brother[]>([])
@@ -13,10 +26,11 @@ export default function Brothers() {
   useEffect(() => {
     // Fetch brothers data from database
     const fetchData = async () => {
-      const brothersCollection = collection(db, 'users')
-      const brothersSnapshot = await getDocs(brothersCollection)
-      const brothersData = brothersSnapshot.docs.map((doc) => {
-        const data = doc.data()
+      const brothersDoc = doc(db, 'public', 'brothers')
+      const brothersSnapshot = await getDoc(brothersDoc)
+      const brothersData: PublicData = brothersSnapshot.data() as PublicData
+      const brothersList = brothersData.displayOrder.map((userId: any) => {
+        const data = brothersData.brotherList[userId]
         const brother: Brother = {
           name: `${data.firstName} ${data.lastName}`,
           email: data.displayEmail,
@@ -25,7 +39,7 @@ export default function Brothers() {
         }
         return brother
       })
-      setBrothers(brothersData)
+      setBrothers(brothersList)
       console.log(brothersData)
     }
     fetchData()
