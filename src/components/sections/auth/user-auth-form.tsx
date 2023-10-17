@@ -27,9 +27,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       setIsLoading(false)
     }, 3000)
 
+    const form = event.target as HTMLFormElement;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
-    console.log("EVENT: " + event.target[0].value + " " + event.target[1].value);
-    let {result, error} = await signIn(event.target[0].value, event.target[1].value)
+    let {result, error} = await signIn(email, password)
     console.log(result);
     console.log(error);
   }

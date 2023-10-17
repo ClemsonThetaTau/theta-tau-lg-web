@@ -96,7 +96,7 @@ export function ProfileForm() {
         <FormField
           control={form.control}
           name="username"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <FormItem>
               <FormLabel>Display Name</FormLabel>
               <FormControl>
@@ -113,14 +113,14 @@ export function ProfileForm() {
         <FormField
           control={form.control}
           name="email"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <FormItem>
               <FormLabel>Display Email</FormLabel>
               <FormControl>
                 <Input placeholder="johndoe@clemson.edu" {...field} />
               </FormControl>
               <FormDescription>
-                This email will be displayed on the "brothers" portion of the
+                This email will be displayed on the &quot;brothers&quot; portion of the
                 website.
               </FormDescription>
               <FormMessage />
