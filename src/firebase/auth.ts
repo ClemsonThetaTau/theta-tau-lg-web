@@ -1,9 +1,9 @@
-import app from "@/firebase/config";
+import { app } from "@/firebase/config";
 import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const auth = getAuth(app);
 
-async function signIn(email, password) {
+async function signIn(email: string, password: string) {
     let result = null,
         error = null;
     try {
@@ -15,16 +15,17 @@ async function signIn(email, password) {
     return { result, error };
 }
 
-async function signUp(email, password) {
-    let result = null,
-        error = null;
-    try {
-        result = await createUserWithEmailAndPassword(auth, email, password);
-    } catch (e) {
-        error = e;
-    }
+// People are added, no one can signup
+// async function signUp(email: string, password: string) {
+//     let result = null,
+//         error = null;
+//     try {
+//         result = await createUserWithEmailAndPassword(auth, email, password);
+//     } catch (e) {
+//         error = e;
+//     }
 
-    return { result, error };
-}
+//     return { result, error };
+// }
 
-export { signIn, signUp };
+export { auth, signIn };

@@ -5,12 +5,15 @@ import Link from 'next/link'
 
 import { db } from '@/firebase/config'
 import { doc, getDoc } from 'firebase/firestore'
+import { signIn } from '@/firebase/auth'
 
 import { cn } from '@/lib/utils'
 import { ImSpinner3 } from 'react-icons/im'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { sign } from 'crypto'
+import { Console } from 'console'
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -20,10 +23,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault()
     setIsLoading(true)
-
     setTimeout(() => {
       setIsLoading(false)
     }, 3000)
+
+
+    console.log("EVENT: " + event.target[0].value + " " + event.target[1].value);
+    let {result, error} = await signIn(event.target[0].value, event.target[1].value)
+    console.log(result);
+    console.log(error);
   }
 
   return (
