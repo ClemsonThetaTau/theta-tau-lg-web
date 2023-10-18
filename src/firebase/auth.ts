@@ -1,7 +1,5 @@
-import { app } from "@/firebase/config";
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
-
-const auth = getAuth(app);
+import { auth } from "@/firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 async function signIn(email: string, password: string) {
     let result = null,
@@ -28,4 +26,4 @@ async function signIn(email: string, password: string) {
 //     return { result, error };
 // }
 
-export { auth, signIn };
+export { signIn };

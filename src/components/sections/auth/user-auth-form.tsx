@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 
-import { db } from '@/firebase/config'
+import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { signIn } from '@/firebase/auth'
 
