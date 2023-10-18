@@ -1,10 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import React, { useEffect } from 'react'
 
-import { auth } from '@/firebase/auth'
-import { db } from '@/firebase/config'
+import { useRouter } from 'next/navigation'
+
+import { auth } from '@/firebase/firebase'
+import { onAuthStateChanged } from 'firebase/auth'
+import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -45,11 +47,13 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
-  username: 'Test',
+  username: '',
   email: '',
 }
 
 export function ProfileForm() {
+  const { push } = useRouter()
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -67,40 +71,41 @@ export function ProfileForm() {
     })
   }
 
-//   useEffect(() => {
-//     // Fetch data from Firebase and update form values
-//     const fetchData = async () => {
-//       try {
-//         const user = auth.currentUser
-//         if (user) {
-//             user.uid
-//             const userData = await getDoc(doc(db, 'users', user.uid))
-//           if (userData.exists()) {
-//             const data = userData.data()
-            
-//             const { username, email } = data
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid
+        const userData = await getDoc(doc(db, 'users', uid))
+        console.log('RUNNING USERDATA STUFF')
+        console.log('UID: ', uid)
 
-//             form.reset(data)
-//           }
-//         }
-//       } catch (error) {
-//         console.error(error)
-//       }
-//     }
-//     fetchData()
-//   }, [form])
+        if (userData.exists()) {
+          console.log('Document data:', userData.data())
+          const data = userData.data()
+
+          const { username, email } = data
+          console.log('username: ', username, email)
+
+          form.reset(data)
+        }
+      } else {
+        push('/login')
+      }
+    })
+  }, [])
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="username"
+          name="firstName lastName"
           render={({ field }: { field: any }) => (
             <FormItem>
               <FormLabel>Display Name</FormLabel>
               <FormControl>
                 <Input placeholder="First" {...field} />
+                <Input placeholder="Last" {...field} />
               </FormControl>
               <FormDescription>
                 This is your public name. It can be your real name or a
@@ -120,8 +125,8 @@ export function ProfileForm() {
                 <Input placeholder="johndoe@clemson.edu" {...field} />
               </FormControl>
               <FormDescription>
-                This email will be displayed on the &quot;brothers&quot; portion of the
-                website.
+                This email will be displayed on the &quot;brothers&quot; portion
+                of the website.
               </FormDescription>
               <FormMessage />
             </FormItem>
