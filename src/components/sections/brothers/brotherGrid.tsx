@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Brother } from '@/components/sections/brothers/brother'
 import { Headshot } from '@/components/sections/brothers/headshot'
 
-import { db } from '@/firebase/config'
+import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 
 interface PublicBrother {

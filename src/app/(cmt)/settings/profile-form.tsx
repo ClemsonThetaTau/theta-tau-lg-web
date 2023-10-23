@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -24,11 +24,23 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
+import { Label } from "@/components/ui/label"
+import Image from 'next/image'
 
 const profileFormSchema = z.object({
-  username: z
+  profilePicture: z.string(),
+  firstName: z
     .string()
     .min(2, {
       message: 'Display Name must be at least 2 characters.',
@@ -36,7 +48,15 @@ const profileFormSchema = z.object({
     .max(30, {
       message: 'Display Name must not be longer than 30 characters.',
     }),
-  email: z
+  lastName: z
+    .string()
+    .min(2, {
+      message: 'Display Name must be at least 2 characters.',
+    })
+    .max(30, {
+      message: 'Display Name must not be longer than 30 characters.',
+    }),
+  displayEmail: z
     .string({
       required_error: 'Please select an email to display.',
     })
@@ -45,18 +65,12 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  username: '',
-  email: '',
-}
-
 export function ProfileForm() {
   const { push } = useRouter()
+  const [profilePicture, setProfilePicture] = useState('')
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
     mode: 'onChange',
   })
 
@@ -76,17 +90,19 @@ export function ProfileForm() {
       if (user) {
         const uid = user.uid
         const userData = await getDoc(doc(db, 'users', uid))
-        console.log('RUNNING USERDATA STUFF')
-        console.log('UID: ', uid)
 
         if (userData.exists()) {
           console.log('Document data:', userData.data())
           const data = userData.data()
 
-          const { username, email } = data
-          console.log('username: ', username, email)
+          setProfilePicture(data.profilePicture)
+          const defaultValues: Partial<ProfileFormValues> = {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            displayEmail: data.displayEmail,
+          }
 
-          form.reset(data)
+          form.reset(defaultValues)
         }
       } else {
         push('/login')
@@ -98,26 +114,56 @@ export function ProfileForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
-          control={form.control}
-          name="firstName lastName"
-          render={({ field }: { field: any }) => (
-            <FormItem>
-              <FormLabel>Display Name</FormLabel>
-              <FormControl>
-                <Input placeholder="First" {...field} />
-                <Input placeholder="Last" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public name. It can be your real name or a
-                pseudonym.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            control={form.control}
+            name="profilePicture"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <div className='flex'>
+                <Image alt="Profile Picture" src={profilePicture} width={200} height={200} />
+                </div>
+                <FormControl>
+                <Input type='file' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        <FormLabel style={{ marginTop: '32px' }}>Display Name</FormLabel>
+        <div
+          className="grid grid-cols-1 gap-x-4 gap-y-2 w-full md:grid-cols-2"
+          style={{ marginTop: '8px' }}
+        >
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <FormControl>
+                  <Input autocomplete="given-name" placeholder="First" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <FormControl>
+                  <Input autocomplete="family-name" placeholder="Last" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormDescription style={{ marginTop: '8px' }}>
+          This is your public name. It can be your real name or a pseudonym.
+        </FormDescription>
         <FormField
           control={form.control}
-          name="email"
+          name="displayEmail"
           render={({ field }: { field: any }) => (
             <FormItem>
               <FormLabel>Display Email</FormLabel>

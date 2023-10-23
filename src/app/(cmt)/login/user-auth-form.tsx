@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ToastAction } from '@/components/ui/toast'
 import { useToast } from '@/components/ui/use-toast'
+import { AuthError } from 'firebase/auth';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -33,18 +34,17 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       .value
 
     let { result, error } = await signIn(email, password)
-    console.log(result)
-    console.log(error)
 
     if (error != null) {
       setIsLoading(false)
       toast({
         title: 'Error Logging In: ',
-        description: error.message,
+        description: (error as AuthError).message,
       })
     } else {
       push('/settings')
     }
+
   }
 
   return (
