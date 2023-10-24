@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator"
+import { ProfilePicture } from "./profile-picture"
 import { ProfileForm } from "./profile-form"
 
 export default function SettingsProfilePage() {

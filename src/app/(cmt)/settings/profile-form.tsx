@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { auth } from '@/firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { db } from '@/firebase/firebase'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -32,11 +32,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
-import { Label } from "@/components/ui/label"
-import Image from 'next/image'
+import { Label } from '@/components/ui/label'
+
+import { ProfilePicture } from './profile-picture'
 
 const profileFormSchema = z.object({
   profilePicture: z.string(),
@@ -60,10 +61,18 @@ const profileFormSchema = z.object({
     .string({
       required_error: 'Please select an email to display.',
     })
-    .email(),
+    .email()
+    .optional()
+    .transform(e => e === "" ? undefined : e),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
+
+const defaultValues: Partial<ProfileFormValues> = {
+  firstName: '',
+  lastName: '',
+  displayEmail: '',
+}
 
 export function ProfileForm() {
   const { push } = useRouter()
@@ -71,18 +80,46 @@ export function ProfileForm() {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
+    defaultValues,
     mode: 'onChange',
   })
 
   function onSubmit(data: ProfileFormValues) {
     toast({
       title: 'You submitted the following values:',
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      description: JSON.stringify(data, null, 2),
     })
+    const { firstName, lastName, displayEmail } = data
+    console.log("TESTING", firstName)
+    const uid = auth.currentUser?.uid
+    console.log(uid)
+    console.log("RUNNING SUBMISSION")
+    if (!uid) {
+      return
+    }
+
+    const userRef = doc(db, 'users', uid)
+    const userData = {
+      firstName,
+      lastName,
+      displayEmail,
+      profilePicture,
+    }
+
+    setDoc(userRef, userData)
+      .then(() => {
+        toast({
+          title: 'You submitted the following values:',
+          description: 'Profile updated successfully',
+        })
+      })
+      .catch((error) => {
+        console.error('Error updating profile', error)
+        toast({
+          title: 'You submitted the following values:',
+          description: 'Error updating profile',
+        })
+      })
   }
 
   useEffect(() => {
@@ -112,22 +149,9 @@ export function ProfileForm() {
 
   return (
     <Form {...form}>
+      {/* <img className="w-32" src={profilePicture} alt="Profile Picture" />
+      <ProfilePicture url={profilePicture} /> */}
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-            control={form.control}
-            name="profilePicture"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <div className='flex'>
-                <Image alt="Profile Picture" src={profilePicture} width={200} height={200} />
-                </div>
-                <FormControl>
-                <Input type='file' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         <FormLabel style={{ marginTop: '32px' }}>Display Name</FormLabel>
         <div
           className="grid grid-cols-1 gap-x-4 gap-y-2 w-full md:grid-cols-2"
@@ -139,7 +163,11 @@ export function ProfileForm() {
             render={({ field }: { field: any }) => (
               <FormItem>
                 <FormControl>
-                  <Input autocomplete="given-name" placeholder="First" {...field} />
+                  <Input
+                    autoComplete="given-name"
+                    placeholder="First"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -151,7 +179,11 @@ export function ProfileForm() {
             render={({ field }: { field: any }) => (
               <FormItem>
                 <FormControl>
-                  <Input autocomplete="family-name" placeholder="Last" {...field} />
+                  <Input
+                    autoComplete="family-name"
+                    placeholder="Last"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
