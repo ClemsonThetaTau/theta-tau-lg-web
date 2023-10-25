@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation'
 
 import { auth } from '@/firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
-import { db } from '@/firebase/firebase'
+import { db, storage } from '@/firebase/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
+
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -40,7 +42,7 @@ import { Label } from '@/components/ui/label'
 import { ProfilePicture } from './profile-picture'
 
 const profileFormSchema = z.object({
-  profilePicture: z.string(),
+  profilePicture: z.string().optional(),
   firstName: z
     .string()
     .min(2, {
@@ -58,9 +60,7 @@ const profileFormSchema = z.object({
       message: 'Display Name must not be longer than 30 characters.',
     }),
   displayEmail: z
-    .string({
-      required_error: 'Please select an email to display.',
-    })
+    .string()
     .email()
     .optional()
     .transform(e => e === "" ? undefined : e),
@@ -85,15 +85,10 @@ export function ProfileForm() {
   })
 
   function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: 'You submitted the following values:',
-      description: JSON.stringify(data, null, 2),
-    })
     const { firstName, lastName, displayEmail } = data
-    console.log("TESTING", firstName)
+    
     const uid = auth.currentUser?.uid
-    console.log(uid)
-    console.log("RUNNING SUBMISSION")
+
     if (!uid) {
       return
     }
@@ -106,7 +101,7 @@ export function ProfileForm() {
       profilePicture,
     }
 
-    setDoc(userRef, userData)
+    setDoc(userRef, userData, { merge: true })
       .then(() => {
         toast({
           title: 'You submitted the following values:',
@@ -149,9 +144,24 @@ export function ProfileForm() {
 
   return (
     <Form {...form}>
-      {/* <img className="w-32" src={profilePicture} alt="Profile Picture" />
-      <ProfilePicture url={profilePicture} /> */}
+      <img className="w-32" src={profilePicture} alt="Profile Picture" />
+      <ProfilePicture url={profilePicture} />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* <FormField
+            control={form.control}
+            name="profilePicture"
+            render={({ field }: { field: any }) => (
+              <FormItem>
+                <div className='flex'>
+                <img alt="Profile Picture" src={profilePicture} width={200} height={200} />
+                </div>
+                <FormControl>
+                <Input type='file' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
         <FormLabel style={{ marginTop: '32px' }}>Display Name</FormLabel>
         <div
           className="grid grid-cols-1 gap-x-4 gap-y-2 w-full md:grid-cols-2"
@@ -163,11 +173,7 @@ export function ProfileForm() {
             render={({ field }: { field: any }) => (
               <FormItem>
                 <FormControl>
-                  <Input
-                    autoComplete="given-name"
-                    placeholder="First"
-                    {...field}
-                  />
+                  <Input autoComplete="given-name" placeholder="First" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -179,11 +185,7 @@ export function ProfileForm() {
             render={({ field }: { field: any }) => (
               <FormItem>
                 <FormControl>
-                  <Input
-                    autoComplete="family-name"
-                    placeholder="Last"
-                    {...field}
-                  />
+                  <Input autoComplete="family-name" placeholder="Last" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
