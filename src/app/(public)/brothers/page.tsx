@@ -1,6 +1,6 @@
 import React from "react"
-import Banner from "@/components/sections/brothers/banner"
-import BrotherGrid from "@/components/sections/brothers/brotherGrid"
+import Banner from "@/app/(public)/brothers/banner"
+import BrotherGrid from "@/app/(public)/brothers/brotherGrid"
 
 
 export default function Brothers() {

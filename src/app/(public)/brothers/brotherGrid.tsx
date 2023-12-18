@@ -50,7 +50,7 @@ export default function BrotherGrid() {
       <h1 className="text-4xl font-bold text-center my-8">
         Meet the Brothers of the Lambda Gamma Chapter!
       </h1>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 justify-items-center items-center">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-5 justify-items-center items-center">
         {brothers.map((brother, idx) => (
           <Headshot key={idx} brother={brother} />
         ))}
