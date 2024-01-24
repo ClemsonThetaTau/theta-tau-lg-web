@@ -1,26 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Brother } from '@/components/types/brother'
+import { Brother, PublicBrother, PublicData } from '@/components/types/brother'
 import { PositionHeadshot } from '@/components/ui/headshot'
 
 import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 
-interface PublicBrother {
-  firstName: string
-  lastName: string
-  displayEmail: string
-  major: string
-  profilePicture: string
-}
-
-interface PublicData {
-  brotherList: { [key: string]: PublicBrother }
-  displayOrder: string[]
-}
-
-export default function BrotherGrid() {
+export default function OfficerGrid() {
   const [brothers, setBrothers] = useState<Brother[]>([])
 
   useEffect(() => {
@@ -47,15 +34,8 @@ export default function BrotherGrid() {
   }, [])
 
   return (
-    <section className="p-16">
-      <h1 className="text-4xl font-bold text-center my-8">
-        Meet the Brothers of the Lambda Gamma Chapter!
-      </h1>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 justify-items-center items-center">
-        {brothers.map((brother, idx) => (
-          <PositionHeadshot key={idx} brother={brother} position='' />
-        ))}
-      </div>
-    </section>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3 justify-items-center items-center">
+        {/* <PositionHeadshot key={} brother={brother} position='Regent' /> */}
+    </div>
   )
 }

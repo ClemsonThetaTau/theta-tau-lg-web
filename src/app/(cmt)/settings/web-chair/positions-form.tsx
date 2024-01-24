@@ -24,191 +24,195 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+
+import { BrotherCommandItem, BrotherCombobox } from './brother-combobox'
+
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { Label } from '@/components/ui/label'
 
 const positionsFormSchema = z.object({
-  profilePicture: z.string().optional(),
-  firstName: z
-    .string()
-    .min(2, {
-      message: 'Display Name must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Display Name must not be longer than 30 characters.',
-    }),
-  lastName: z
-    .string()
-    .min(2, {
-      message: 'Display Name must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Display Name must not be longer than 30 characters.',
-    }),
-  displayEmail: z
-    .string()
-    .email()
-    .optional()
-    .transform(e => e === "" ? undefined : e),
+  regent: z.string({
+    required_error: "Please select a regent.",
+  }),
+  viceRegent: z.string({
+    required_error: "Please select a vice regent.",
+  }),
+  scribe: z.string({
+    required_error: "Please select a scribe.",
+  }),
+  treasurer: z.string({
+    required_error: "Please select a treasurer.",
+  }),
+  delegateAtLarge: z.string({
+    required_error: "Please select a delegate at large.",
+  }),
+  correspondingSecretary: z.string({
+    required_error: "Please select a corresponding secretary.",
+  }),
+  newMemberEducator: z.string({
+    required_error: "Please select a new member educator.",
+  }),
 })
 
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+type PositionsFormValues = z.infer<typeof positionsFormSchema>
 
-const defaultValues: Partial<ProfileFormValues> = {
-  firstName: '',
-  lastName: '',
-  displayEmail: '',
+const defaultValues: Partial<PositionsFormValues> = {
+  regent: '',
+  viceRegent: '',
+  scribe: '',
+  treasurer: '',
+  delegateAtLarge: '',
+  correspondingSecretary: '',
+  newMemberEducator: '',
 }
 
-export function WebChairForm() {
+export function PositionsForm({defaultValues, brothers}: {defaultValues: Partial<PositionsFormValues>, brothers: BrotherCommandItem[]}) {
   const { push } = useRouter()
   const [profilePicture, setProfilePicture] = useState('')
 
-  const form = useForm<ProfileFormValues>({
+  const form = useForm<PositionsFormValues>({
     resolver: zodResolver(positionsFormSchema),
     defaultValues,
     mode: 'onChange',
   })
 
-  function onSubmit(data: ProfileFormValues) {
-    const { firstName, lastName, displayEmail } = data
-    
-    const uid = auth.currentUser?.uid
+  function onSubmit(data: PositionsFormValues) {
+    const { regent, viceRegent, scribe, treasurer, delegateAtLarge, correspondingSecretary, newMemberEducator } = data
 
-    if (!uid) {
-      return
+    const userRef = doc(db, 'public', 'officers')
+    const officersData = {
+      ec: {
+        regent: regent,
+        viceRegent: viceRegent,
+        scribe: scribe,
+        treasurer: treasurer,
+        delegateAtLarge: delegateAtLarge,
+        correspondingSecretary: correspondingSecretary,
+        newMemberEducator: newMemberEducator,
+      }
     }
 
-    const userRef = doc(db, 'users', uid)
-    const userData = {
-      firstName,
-      lastName,
-      displayEmail,
-      profilePicture,
-    }
-
-    setDoc(userRef, userData, { merge: true })
+    setDoc(userRef, officersData, { merge: true })
       .then(() => {
         toast({
-          title: 'You submitted the following values:',
-          description: 'Profile updated successfully',
+          title: 'Form Submission:',
+          description: 'Positions updated successfully',
         })
       })
       .catch((error) => {
-        console.error('Error updating profile', error)
+        console.error('Error updating positions', error)
         toast({
-          title: 'You submitted the following values:',
-          description: 'Error updating profile',
+          title: 'Form Submission:',
+          description: 'Error updating positions, make sure you\'re the web chair!',
         })
       })
   }
 
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid
-        const userData = await getDoc(doc(db, 'users', uid))
-
-        if (userData.exists()) {
-          console.log('Document data:', userData.data())
-          const data = userData.data()
-
-          setProfilePicture(data.profilePicture)
-          const defaultValues: Partial<ProfileFormValues> = {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            displayEmail: data.displayEmail,
-          }
-
-          form.reset(defaultValues)
-        }
-      } else {
-        push('/login')
-      }
-    })
-  }, [])
-
   return (
     <Form {...form}>
-      <img className="w-32" src={profilePicture} alt="Profile Picture" />
-      <ProfilePicture url={profilePicture} />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* <FormField
-            control={form.control}
-            name="profilePicture"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <div className='flex'>
-                <img alt="Profile Picture" src={profilePicture} width={200} height={200} />
-                </div>
-                <FormControl>
-                <Input type='file' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-        <FormLabel style={{ marginTop: '32px' }}>Display Name</FormLabel>
-        <div
-          className="grid grid-cols-1 gap-x-4 gap-y-2 w-full md:grid-cols-2"
-          style={{ marginTop: '8px' }}
-        >
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
           <FormField
             control={form.control}
-            name="firstName"
+            name="regent"
             render={({ field }: { field: any }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
+                <FormLabel>Regent</FormLabel>
                 <FormControl>
-                  <Input autoComplete="given-name" placeholder="First" {...field} />
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="lastName"
+            name="viceRegent"
             render={({ field }: { field: any }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
+                <FormLabel>Vice Regent</FormLabel>
                 <FormControl>
-                  <Input autoComplete="family-name" placeholder="Last" {...field} />
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="scribe"
+            render={({ field }: { field: any }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Scribe</FormLabel>
+                <FormControl>
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="treasurer"
+            render={({ field }: { field: any }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Treasurer</FormLabel>
+                <FormControl>
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="delegateAtLarge"
+            render={({ field }: { field: any }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Delegate at Large</FormLabel>
+                <FormControl>
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="correspondingSecretary"
+            render={({ field }: { field: any }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Corresponding Secretary</FormLabel>
+                <FormControl>
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="newMemberEducator"
+            render={({ field }: { field: any }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>New Member Educator</FormLabel>
+                <FormControl>
+                  <BrotherCombobox form={form} field={field} brothers={brothers} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <FormDescription style={{ marginTop: '8px' }}>
-          This is your public name. It can be your real name or a pseudonym.
-        </FormDescription>
-        <FormField
-          control={form.control}
-          name="displayEmail"
-          render={({ field }: { field: any }) => (
-            <FormItem>
-              <FormLabel>Display Email</FormLabel>
-              <FormControl>
-                <Input placeholder="johndoe@clemson.edu" {...field} />
-              </FormControl>
-              <FormDescription>
-                This email will be displayed on the &quot;brothers&quot; portion
-                of the website.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Update profile</Button>
+
+        <Button type="submit">Update Positions</Button>
       </form>
     </Form>
   )
