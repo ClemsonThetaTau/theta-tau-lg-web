@@ -1,24 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Brother } from '@/components/sections/brothers/brother'
-import { Headshot } from '@/components/sections/brothers/headshot'
+import { Brother, PublicBrother, PublicData } from '@/components/types/brother'
+import { Headshot } from '@/components/ui/headshot'
 
 import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'
-
-interface PublicBrother {
-  firstName: string
-  lastName: string
-  displayEmail: string
-  major: string
-  profilePicture: string
-}
-
-interface PublicData {
-  brotherList: { [key: string]: PublicBrother }
-  displayOrder: string[]
-}
 
 export default function BrotherGrid() {
   const [brothers, setBrothers] = useState<Brother[]>([])

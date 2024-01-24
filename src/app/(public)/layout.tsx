@@ -1,5 +1,6 @@
 import './public.css'
 import type { Metadata } from 'next'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { Inter } from 'next/font/google'
 
 import NavBar from '@/components/nav/nav-bar'
@@ -23,6 +24,7 @@ export default function RootLayout({
         <NavBar />
         {children}
       </body>
+      <GoogleAnalytics gaId="G-87T7K6GX57" />
     </html>
   )
 }

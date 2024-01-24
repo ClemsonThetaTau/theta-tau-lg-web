@@ -18,6 +18,10 @@ const sidebarNavItems = [
     title: "Account",
     href: "/settings/account",
   },
+  {
+    title: "Web Chair",
+    href: "/settings/web-chair"
+  }
 //   {
 //     title: "Appearance",
 //     href: "/examples/forms/appearance",

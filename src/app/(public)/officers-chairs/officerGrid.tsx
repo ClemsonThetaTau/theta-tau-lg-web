@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Brother } from '@/components/sections/brothers/brother'
-import { Headshot } from '@/components/sections/brothers/headshot'
+import { Brother } from '@/components/types/brother'
+import { PositionHeadshot } from '@/components/ui/headshot'
 
 import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'
@@ -53,7 +53,7 @@ export default function BrotherGrid() {
       </h1>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 justify-items-center items-center">
         {brothers.map((brother, idx) => (
-          <Headshot key={idx} brother={brother} />
+          <PositionHeadshot key={idx} brother={brother} position='' />
         ))}
       </div>
     </section>

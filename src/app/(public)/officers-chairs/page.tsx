@@ -1,6 +1,6 @@
 import React from "react"
 
-export default function Brothers() {
+export default function OfficersChairs() {
     return (
         <></>
     )
