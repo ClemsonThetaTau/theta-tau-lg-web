@@ -1,41 +1,57 @@
-'use client'
+import { PublicBrother, PublicOfficerData } from '@/components/types/brother'
+import { PositionHeadshot, SkeletonHeadshot } from '@/components/ui/headshot'
 
-import { useState, useEffect } from 'react'
-import { Brother, PublicBrother, PublicData } from '@/components/types/brother'
-import { PositionHeadshot } from '@/components/ui/headshot'
+interface OfficerGridProps {
+  officers: PublicOfficerData | undefined
+  brothers: { [key: string]: PublicBrother } | undefined
+}
 
-import { db } from '@/firebase/firebase'
-import { doc, getDoc } from 'firebase/firestore'
-
-export default function OfficerGrid() {
-  const [brothers, setBrothers] = useState<Brother[]>([])
-
-  useEffect(() => {
-    // Fetch brothers data from database
-    const fetchData = async () => {
-      const officersDoc = doc(db, 'public', 'officers')
-      const brothersDoc = doc(db, 'public', 'brothers')
-      const brothersSnapshot = await getDoc(brothersDoc)
-      const brothersData: PublicData = brothersSnapshot.data() as PublicData
-      const brothersList = brothersData.displayOrder.map((userId: any) => {
-        const data = brothersData.brotherList[userId]
-        const brother: Brother = {
-          name: `${data.firstName} ${data.lastName}`,
-          email: data.displayEmail,
-          image: data.profilePicture,
-          major: data.major,
-        }
-        return brother
-      })
-      setBrothers(brothersList)
-      console.log(brothersData)
-    }
-    fetchData()
-  }, [])
-
+export default function OfficerGrid({ officers, brothers }: OfficerGridProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3 justify-items-center items-center">
-        {/* <PositionHeadshot key={} brother={brother} position='Regent' /> */}
+      {(brothers && officers && (
+        <>
+          <PositionHeadshot
+            brother={brothers[officers.ec.regent]}
+            position="Regent"
+          />
+          <PositionHeadshot
+            brother={brothers[officers.ec.viceRegent]}
+            position="Vice Regent"
+          />
+          <PositionHeadshot
+            brother={brothers[officers.ec.scribe]}
+            position="Scribe"
+          />
+          <PositionHeadshot
+            brother={brothers[officers.ec.treasurer]}
+            position="Treasurer"
+          />
+          <PositionHeadshot
+            brother={brothers[officers.ec.correspondingSecretary]}
+            position="Corresponding Secretary"
+          />
+          <PositionHeadshot
+            brother={brothers[officers.ec.delegateAtLarge]}
+            position="Delegate At Large"
+          />
+          <div className="col-start-1 md:col-start-2">
+            <PositionHeadshot
+              brother={brothers[officers.ec.newMemberEducator]}
+              position="New Member Educator"
+            />
+          </div>
+        </>
+      )) || (
+        <>
+          <SkeletonHeadshot />
+          <SkeletonHeadshot />
+          <SkeletonHeadshot />
+          <SkeletonHeadshot />
+          <SkeletonHeadshot />
+          <SkeletonHeadshot />
+        </>
+      )}
     </div>
   )
 }
