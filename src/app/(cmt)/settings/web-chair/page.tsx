@@ -12,7 +12,7 @@ import { db, storage } from '@/firebase/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 import { BrotherCommandItem } from './brother-combobox'
-import { Brother, PublicBrother, PublicData } from '@/components/types/brother'
+import { PublicBrother, PublicBrotherData } from '@/components/types/brother'
 
 export default function SettingsProfilePage() {
   const { push } = useRouter()
@@ -24,7 +24,7 @@ export default function SettingsProfilePage() {
       const officersDoc = doc(db, 'public', 'officers')
       const brothersDoc = doc(db, 'public', 'brothers')
       const brothersSnapshot = await getDoc(brothersDoc)
-      const brothersData: PublicData = brothersSnapshot.data() as PublicData
+      const brothersData: PublicBrotherData = brothersSnapshot.data() as PublicBrotherData
       const brothersList = brothersData.displayOrder.map((userId: any) => {
         const data = brothersData.brotherList[userId]
         const brother: BrotherCommandItem = {
