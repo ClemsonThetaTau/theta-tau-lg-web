@@ -1,10 +1,3 @@
-interface Brother {
-  name: string
-  email: string
-  image: string
-  major: string
-}
-
 interface PublicBrother {
   firstName: string
   lastName: string
@@ -13,9 +6,14 @@ interface PublicBrother {
   profilePicture: string
 }
 
-interface PublicData {
+interface PublicBrotherData {
   brotherList: { [key: string]: PublicBrother }
   displayOrder: string[]
 }
 
-export type { Brother, PublicBrother, PublicData }
+interface PublicOfficerData {
+  chairs: { posName: string, userId: string }[]
+  ec: {regent: string, viceRegent: string, scribe: string, treasurer: string, correspondingSecretary: string, delegateAtLarge: string, newMemberEducator: string}
+}
+
+export type { PublicBrother, PublicBrotherData, PublicOfficerData }
