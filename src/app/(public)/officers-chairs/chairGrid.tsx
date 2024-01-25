@@ -3,8 +3,8 @@ import { PublicBrother, PublicOfficerData } from '@/components/types/brother'
 import { PositionHeadshot, SkeletonHeadshot } from '@/components/ui/headshot'
 
 interface ChairGridProps {
-  officers: PublicOfficerData
-  brothers: { [key: string]: PublicBrother }
+  officers: PublicOfficerData | undefined
+  brothers: { [key: string]: PublicBrother } | undefined
 }
 
 export default function ChairGrid({ officers, brothers }: ChairGridProps) {
