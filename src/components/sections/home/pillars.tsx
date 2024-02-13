@@ -5,8 +5,8 @@ export default function Pillars() {
   return (
     <section className="my-8 mx-4 md:mx-8 py-8 px-4 md:px-24">
       <div className="space-y-1">
-        <h3 className="text-3xl md:text-5xl font-light leading-none text-center">
-          The Three Pillars of Theta Tau
+        <h3 className="text-5xl md:text-7xl font-hiatus font-medium leading-none text-center">
+          The Three Pillars
         </h3>
       </div>
       <Separator className="m-4" />
@@ -21,7 +21,7 @@ export default function Pillars() {
                 height={100}
               />
             </div>
-            <h4 className="text-xl font-medium my-2">Brotherhood</h4>
+            <h4 className="text-3xl font-medium font-hiatus my-2">Brotherhood</h4>
           </div>
           <p className="text-base leading-normal">
             We forge lifelong bonds of fraternal friendship, a journey that
@@ -52,7 +52,7 @@ export default function Pillars() {
                 height={100}
               />
             </div>
-            <h4 className="text-xl font-medium my-2">
+            <h4 className="text-3xl font-medium font-hiatus my-2">
               Professional Development
             </h4>
           </div>
@@ -84,7 +84,7 @@ export default function Pillars() {
                 height={100}
               />
             </div>
-            <h4 className="text-xl font-medium my-2">Service</h4>
+            <h4 className="text-3xl font-medium font-hiatus my-2">Service</h4>
           </div>
           <p className="text-base leading-normal">
             We are known for our service to our university and the greater

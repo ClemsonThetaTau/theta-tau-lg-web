@@ -29,7 +29,7 @@ export default function Home() {
       <div className="my-8 h-96 w-full flex items-center justify-center">
         <DynamicCarousel images={images} />
       </div>
-      <div className="w-full bg-red-600 mt-8 py-8 md:py-16 px-4 flex flex-col items-center justify-center">
+      <div className="w-full bg-primary mt-8 py-8 md:py-16 px-4 flex flex-col items-center justify-center">
         <h3 className="text-white text-2xl md:text-5xl font-bold tracking-wider mb-4 text-center">
           Want to Join the Brotherhood?
         </h3>

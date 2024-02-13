@@ -1,11 +1,11 @@
 export default function ChapterHistory() {
   return (
-    <section className="bg-accent md:px-32 py-2 my-2 md:pb-16 md:pt-12 md:my-8">
+    <section className="bg-primary md:px-32 py-2 my-2 md:pb-16 md:pt-12 md:my-8">
     {/*  */}
-      <h2 className="text-primary m-4 text-xl md:text-5xl font-bold w-auto text-center">
+      <h2 className="text-secondary-foreground m-4 text-xl md:text-5xl font-bold w-auto text-center">
         Chapter History
       </h2>
-      <p className="text-background md:text-lg p-2 mx-2 md:mx-8 md:px-8">
+      <p className="text-secondary-foreground md:text-lg p-2 mx-2 md:mx-8 md:px-8">
         The Lambda Gamma chapter of Theta Tau was founded by Scott Kultau, Jason
         Gamble, and Penn Sanders on January 13, 2001. The installment ceremony
         was conducted by the Grand Region at that time, Grand Regent Glen A.
