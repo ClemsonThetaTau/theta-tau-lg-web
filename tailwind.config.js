@@ -78,6 +78,7 @@ module.exports = {
       },
       fontFamily: {
         'hiatus': ["Hiatus", "sans-serif"],
+        'reydex': ["Reydex", "sans-serif"],
       },
     },
   },

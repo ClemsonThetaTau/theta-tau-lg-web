@@ -9,12 +9,12 @@ export default function Banner() {
         alt="Banner Image"
         className="object-cover bg-gray-900"
       />
-      <div className="absolute font-hiatus font-bold inset-0 flex flex-col items-center justify-center text-white text-center">
-        <h1 className="text-8xl drop-shadow-2xl-dark tracking-wider">THETA TAU</h1>
-        <h2 className="text-6xl drop-shadow-2xl-dark tracking-widest">
+      <div className="absolute font-medium  inset-0 flex flex-col items-center justify-center text-white text-center">
+        <h1 className="text-8xl font-reydex drop-shadow-2xl-dark tracking-wider">THETA TAU</h1>
+        <h2 className="text-3xl drop-shadow-2xl-dark tracking-widest">
           LAMBDA GAMMA CHAPTER
         </h2>
-        <h3 className="text-4xl italic drop-shadow-2xl-dark tracking-widest">
+        <h3 className="text-3xl drop-shadow-2xl-dark tracking-widest">
           CLEMSON, SC
         </h3>
       </div>

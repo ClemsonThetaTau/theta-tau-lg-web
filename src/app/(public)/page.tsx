@@ -31,7 +31,7 @@ export default function Home() {
       </div>
       <div className="w-full bg-primary mt-8 py-8 md:py-16 px-4 flex flex-col items-center justify-center">
         <h3 className="text-white text-2xl md:text-5xl font-bold tracking-wider mb-4 text-center">
-          Want to Join the Brotherhood?
+        JOIN THE BROTHERHOOD!
         </h3>
         <p className="text-white text-lg md:text-2xl font-light tracking-wide mb-4 text-center">
           Check out our Rush section for more information
