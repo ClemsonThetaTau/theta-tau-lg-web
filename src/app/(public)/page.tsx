@@ -17,8 +17,8 @@ const images: ImageData[] = [
     url: '/images/photos/carousel/gavin-electric.jpg',
   },
   {
-    title: 'Bowman Feild2',
-    url: '/images/photos/bowman.jpg',
+    title: 'Big Little!',
+    url: '/images/photos/carousel/big-little.jpg',
   },
 ]
 
