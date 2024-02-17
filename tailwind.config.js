@@ -73,6 +73,13 @@ module.exports = {
       height: {
         '128': '32rem',
       },
+      dropShadow: {
+        '2xl-dark': '0 25px 25px rgb(0 0 0)',
+      },
+      fontFamily: {
+        'hiatus': ["Hiatus", "sans-serif"],
+        'reydex': ["Reydex", "sans-serif"],
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
