@@ -15,7 +15,7 @@ import { BrotherCommandItem } from './brother-combobox'
 import { PublicBrother, PublicBrotherData, PublicOfficerData } from '@/components/types/brother'
 import { SkeletonForm } from '@/components/ui/skeleton-form'
 
-export default function SettingsProfilePage() {
+export default function SettingsWebChairPage() {
   const { push } = useRouter()
 
   const [brothers, setBrothers] = useState<BrotherCommandItem[]>([])
