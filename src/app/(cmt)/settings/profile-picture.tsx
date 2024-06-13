@@ -35,7 +35,7 @@ const ProfilePicture = ({ url }: ProfilePictureProps) => {
 
   const [open, setOpen] = useState(false)
 
-  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
     setCroppedAreaPixels(croppedAreaPixels)
   }, [])
 
@@ -65,20 +65,20 @@ const ProfilePicture = ({ url }: ProfilePictureProps) => {
 
       uploadTask.on('state_changed', () => { }, (error) => {
         console.error(error)
-        toast({ title: 'Error', description: 'Unable to upload profile picture', status: 'error' })
+        toast({ title: 'Error', description: 'Unable to upload profile picture' })
         setIsLoading(false)
       }, async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
         const userDoc = doc(db, 'users', user.uid)
         await setDoc(userDoc, { profilePictureUrl: downloadURL }, { merge: true })
-        toast({ title: 'Success', description: 'Profile picture updated', status: 'success' })
+        toast({ title: 'Success', description: 'Profile picture updated' })
         
         setOpen(false)
         setIsLoading(false)
       })
     } catch (error) {
       console.error(error)
-      toast({ title: 'Error', description: 'Something went wrong', status: 'error' })
+      toast({ title: 'Error', description: 'Something went wrong' })
       setIsLoading(false)
     }
   }

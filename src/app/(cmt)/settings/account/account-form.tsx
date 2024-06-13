@@ -52,7 +52,7 @@ const profileFormSchema = z.object({
   major: z
     .string()
     .min(2, { message: 'Major must be at least 2 characters.' }),
-  status: z.enum(['active', 'inactive'], { message: 'Select "active" or "inactive".' }),
+  status: z.enum(['active', 'inactive']),
 })
 
 type EmailFormValues = z.infer<typeof emailFormSchema>
