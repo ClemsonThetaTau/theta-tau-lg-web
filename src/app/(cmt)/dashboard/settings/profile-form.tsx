@@ -3,13 +3,19 @@
 import React, { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 import { auth } from '@/firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { db, storage } from '@/firebase/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -63,21 +69,18 @@ const profileFormSchema = z.object({
     .string()
     .email()
     .optional()
-    .transform(e => e === "" ? undefined : e),
+    .transform((e) => (e === '' ? undefined : e)),
 })
 
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+export type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-const defaultValues: Partial<ProfileFormValues> = {
-  firstName: '',
-  lastName: '',
-  displayEmail: '',
-}
-
-export function ProfileForm() {
-  const { push } = useRouter()
-  const [profilePicture, setProfilePicture] = useState('')
-
+export function ProfileForm({
+  defaultValues,
+  profilePicture
+}: {
+  defaultValues: Partial<ProfileFormValues>,
+  profilePicture: string
+}) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -86,7 +89,7 @@ export function ProfileForm() {
 
   function onSubmit(data: ProfileFormValues) {
     const { firstName, lastName, displayEmail } = data
-    
+
     const uid = auth.currentUser?.uid
 
     if (!uid) {
@@ -117,34 +120,9 @@ export function ProfileForm() {
       })
   }
 
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid
-        const userData = await getDoc(doc(db, 'users', uid))
-
-        if (userData.exists()) {
-          console.log('Document data:', userData.data())
-          const data = userData.data()
-
-          setProfilePicture(data.profilePicture)
-          const defaultValues: Partial<ProfileFormValues> = {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            displayEmail: data.displayEmail,
-          }
-
-          form.reset(defaultValues)
-        }
-      } else {
-        push('/login')
-      }
-    })
-  }, [])
-
   return (
     <Form {...form}>
-      <img className="w-32" src={profilePicture} alt="Profile Picture" />
+      <Image className="w-32" src={profilePicture} alt="Profile Picture" width={128} height={128}/>
       <ProfilePicture url={profilePicture} />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {/* <FormField
@@ -173,7 +151,11 @@ export function ProfileForm() {
             render={({ field }: { field: any }) => (
               <FormItem>
                 <FormControl>
-                  <Input autoComplete="given-name" placeholder="First" {...field} />
+                  <Input
+                    autoComplete="given-name"
+                    placeholder="First"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -185,7 +167,11 @@ export function ProfileForm() {
             render={({ field }: { field: any }) => (
               <FormItem>
                 <FormControl>
-                  <Input autoComplete="family-name" placeholder="Last" {...field} />
+                  <Input
+                    autoComplete="family-name"
+                    placeholder="Last"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

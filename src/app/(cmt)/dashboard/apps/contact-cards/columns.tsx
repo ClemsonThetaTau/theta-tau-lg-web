@@ -84,5 +84,6 @@ export const columns: ColumnDef<BrotherInfo>[] = [
   {
     accessorKey: 'phone',
     header: 'Phone',
+    cell: ({ getValue }) => <div style={{ minWidth: '120px' }}>{getValue<string>()}</div>, // Making the phone cell wider
   },
 ]

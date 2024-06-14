@@ -9,65 +9,58 @@
 // app in like 5 hours over the past day or two. Just kinda working on this whenever my
 // AI research lightens up enough for me to squeeze in some extra time.
 
-import { BrotherInfo, columns } from "./columns"
-import { DataTable } from "./data-table"
+'use client'
 
-async function getData(): Promise<BrotherInfo[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "b12345",
-      firstName: "John",
-      lastName: "Doe",
-      major: "Computer Science",
-      badgeNumber: 101,
-      pledgeClass: "Alpha",
-      status: "active",
-      email: "john.doe@example.com",
-      phone: "123-456-7890"
-    },
-    {
-      id: "b12346",
-      firstName: "Jane",
-      lastName: "Smith",
-      major: "Mechanical Engineering",
-      badgeNumber: 102,
-      pledgeClass: "Beta",
-      status: "inactive",
-      email: "jane.smith@example.com",
-      phone: "098-765-4321"
-    },
-    {
-      id: "b12347",
-      firstName: "Michael",
-      lastName: "Brown",
-      major: "Electrical Engineering",
-      badgeNumber: 103,
-      pledgeClass: "Gamma",
-      status: "active",
-      email: "michael.brown@example.com",
-      phone: "555-555-5555"
-    },
-    {
-      id: "b12348",
-      firstName: "Emily",
-      lastName: "Davis",
-      major: "Chemical Engineering",
-      badgeNumber: 104,
-      pledgeClass: "Delta",
-      status: "inactive",
-      email: "emily.davis@example.com",
-      phone: "444-444-4444"
-    },
-  ]
-}
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default async function DemoPage() {
-  const data = await getData()
+import { auth } from '@/firebase/firebase'
+import { onAuthStateChanged } from 'firebase/auth'
+import { db } from '@/firebase/firebase'
+import { doc, getDocs, setDoc, collection } from 'firebase/firestore'
+
+import { SkeletonForm } from '@/components/ui/skeleton-form'
+import { BrotherInfo, columns } from './columns'
+import { DataTable } from './data-table'
+
+export default function DemoPage() {
+  const { push } = useRouter()
+
+  const [data, setData] = useState<BrotherInfo[]>()
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'users'))
+        const usersArray = querySnapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as BrotherInfo)
+        )
+
+        setData(usersArray)
+      } catch (error) {
+        console.error('Error fetching users: ', error)
+      }
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await fetchUsers()
+      } else {
+        push('/login')
+      }
+    })
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe()
+  }, [push])
 
   return (
     <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data} />
+      {data && <DataTable columns={columns} data={data} /> || <SkeletonForm />}
     </div>
   )
 }

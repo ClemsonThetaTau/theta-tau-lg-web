@@ -8,6 +8,7 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
@@ -57,6 +58,7 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
@@ -66,6 +68,41 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   })
+
+  const exportContactCards = () => {
+    const selectedContacts = table
+      .getSelectedRowModel()
+      .flatRows.map((row) => row.original)
+
+    if (selectedContacts.length === 0) {
+      // If no contacts are selected, alert the user
+      alert('No contacts selected. Please select contacts to export.')
+      return
+    }
+
+    const vCardData = selectedContacts
+      .map((contact) => {
+        return `BEGIN:VCARD
+VERSION:3.0
+N:${contact.lastName};${contact.firstName};;;
+FN:${contact.firstName} ${contact.lastName}
+ORG:Theta Tau ΛΓ - ${contact.pledgeClass}
+EMAIL;TYPE=PERSONAL:${contact.email}
+TEL;TYPE=MOBILE,VOICE:${contact.phone}
+END:VCARD`
+      })
+      .join('\n') // Joining each vCard entry with a newline character
+
+    const vCardBlob = new Blob([vCardData], { type: 'text/vcard' })
+    const url = URL.createObjectURL(vCardBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'contacts.vcf'
+    document.body.appendChild(link) // Append the link to the body
+    link.click()
+    document.body.removeChild(link) // Remove it after clicking
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div>
@@ -78,9 +115,16 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={exportContactCards}
+        >
+          Export Contacts
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-4">
               Columns
             </Button>
           </DropdownMenuTrigger>
@@ -151,7 +195,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className='mt-4'>
+      <div className="mt-4">
         <DataTablePagination table={table} />
       </div>
     </div>

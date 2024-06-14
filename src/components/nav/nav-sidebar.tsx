@@ -54,7 +54,7 @@ export function SidebarNav({ className, sections, ...props }: SidebarNavProps) {
                   if (!item.subItems) {
                     return (
                       <Link
-                        key={item.href}
+                        key={item.href ?? item.title}
                         href={item.href ?? '#'}
                         className={cn(
                           buttonVariants({ variant: 'ghost' }),
@@ -70,7 +70,7 @@ export function SidebarNav({ className, sections, ...props }: SidebarNavProps) {
                   } else {
                     return (
                       <Accordion
-                        key={item.href}
+                        key={item.href ?? item.title}
                         type="single"
                         className={cn(
                         'rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
