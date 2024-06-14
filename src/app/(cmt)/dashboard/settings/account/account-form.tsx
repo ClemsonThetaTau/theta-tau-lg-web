@@ -1,12 +1,9 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 import { auth } from '@/firebase/firebase'
-import { onAuthStateChanged, signInWithEmailAndPassword, verifyBeforeUpdateEmail, updatePassword } from 'firebase/auth'
-import { db } from '@/firebase/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { signInWithEmailAndPassword, verifyBeforeUpdateEmail, updatePassword } from 'firebase/auth'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -57,11 +54,9 @@ const profileFormSchema = z.object({
 
 type EmailFormValues = z.infer<typeof emailFormSchema>
 type PasswordFormValues = z.infer<typeof passwordFormSchema>
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+export type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-export function AccountForm() {
-  const { push } = useRouter()
-  const [badgeNumber, setBadgeNumber] = useState<string>('')
+export function AccountForm({badgeNumber, profileFormDefaultValues}: {badgeNumber: string, profileFormDefaultValues: ProfileFormValues}) {
   const [loading, setLoading] = useState<boolean>(false)
 
   const emailForm = useForm<EmailFormValues>({
@@ -78,32 +73,9 @@ export function AccountForm() {
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues: { gradYear: '', major: '', status: 'active' },
+    defaultValues: profileFormDefaultValues,
     mode: 'onChange',
   })
-
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid
-        const userData = await getDoc(doc(db, 'users', uid))
-
-        if (userData.exists()) {
-          const data = userData.data()
-
-          setBadgeNumber(data.badgeNumber)
-
-          profileForm.reset({
-            gradYear: data.gradYear,
-            major: data.major,
-            status: data.status,
-          })
-        }
-      } else {
-        push('/login')
-      }
-    })
-  }, [])
 
   const handleEmailUpdate = async (data: EmailFormValues) => {
     const { newEmail, currentPassword } = data;
