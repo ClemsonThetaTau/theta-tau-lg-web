@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/table'
 
 import { DataTablePagination } from './data-table-pagination'
+import { BrotherInfo } from './columns'
 
 export type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[]
@@ -81,7 +82,7 @@ export function DataTable<TData, TValue>({
     }
 
     const vCardData = selectedContacts
-      .map((contact) => {
+      .map((contact: any) => {
         return `BEGIN:VCARD
 VERSION:3.0
 N:${contact.lastName};${contact.firstName};;;
