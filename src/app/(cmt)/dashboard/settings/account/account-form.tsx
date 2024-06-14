@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { auth } from '@/firebase/firebase'
+import { auth, db } from '@/firebase/firebase'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { signInWithEmailAndPassword, verifyBeforeUpdateEmail, updatePassword } from 'firebase/auth'
 
 import { zodResolver } from '@hookform/resolvers/zod'
