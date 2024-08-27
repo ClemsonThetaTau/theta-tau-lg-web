@@ -26,7 +26,7 @@ export interface ComboboxItem {
  
 export function BrothersCombobox({brothers, selectedBrother}: {brothers: ComboboxItem[], selectedBrother: (arg0: string) => void}) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("KUnqF5zAqmOG43IGvK8GInS10oE2")
+  const [value, setValue] = React.useState("")
 
   var frameworks = brothers;
  
@@ -47,18 +47,20 @@ export function BrothersCombobox({brothers, selectedBrother}: {brothers: Combobo
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search brothers..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No brother found.</CommandEmpty>
             <CommandGroup>
               {frameworks.map((framework) => (
                 <CommandItem
                   key={framework.value}
-                  value={framework.value}
+                  value={framework.label}
                   onSelect={(currentValue) => {
                     setValue(framework.value === value ? "" : framework.value)
                     selectedBrother(framework.value === value ? "" : framework.value)
                     setOpen(false)
+
+                    console.log(value)
                   }}
                 >
                   <Check
