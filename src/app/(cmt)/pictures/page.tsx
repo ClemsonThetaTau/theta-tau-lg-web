@@ -28,11 +28,7 @@ import { PublicBrotherData } from '@/components/types/brother'
 
 import { getDoc } from 'firebase/firestore'
 
-type ProfilePictureProps = {
-  url: string
-}
-
-export default function ProfilePicture({ url }: ProfilePictureProps) {
+export default function ProfilePicture() {
   const [img, setImg] = useState<File | null>(null)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
