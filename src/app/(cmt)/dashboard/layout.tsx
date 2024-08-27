@@ -23,7 +23,7 @@ const appsNavItems = [
 const settingsNavItems = [
   {
     title: "Profile",
-    href: "/dashboard/settings",
+    href: "/dashboard/settings/profile",
   },
   {
     title: "Account",

@@ -70,7 +70,7 @@ const ProfilePicture = ({ url }: ProfilePictureProps) => {
       }, async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
         const userDoc = doc(db, 'users', user.uid)
-        await setDoc(userDoc, { profilePictureUrl: downloadURL }, { merge: true })
+        await setDoc(userDoc, { profilePicture: downloadURL }, { merge: true })
         toast({ title: 'Success', description: 'Profile picture updated' })
         
         setOpen(false)

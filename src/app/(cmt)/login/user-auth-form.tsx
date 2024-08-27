@@ -42,7 +42,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         description: (error as AuthError).message,
       })
     } else {
-      push('/dashboard')
+      push('/dashboard/settings/profile')
     }
 
   }

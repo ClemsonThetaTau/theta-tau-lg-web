@@ -26,6 +26,14 @@ export interface BrotherCommandItem {
   label: string
 }
 
+// This is supposed to be more of a temporary fix than a permanent one,
+// though it will probably become a permanent one. Ideally we should rewrite all the forms
+// components as they're atrocious to work with alongside firebase.
+
+
+// This takes in the form objects in order to place the correct forms objects inside the
+// component while still having them reference the form that it's placed into, it's a
+// terribly bloated and un component like system
 export function BrotherCombobox({
   form,
   field,
@@ -35,9 +43,6 @@ export function BrotherCombobox({
   field: any
   brothers: BrotherCommandItem[]
 }) {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState('')
-
   return (
     <Popover>
       <PopoverTrigger asChild>
