@@ -84,6 +84,8 @@ export default function ProfilePictureClient() {
     let img = acceptedFiles[0]
     const fileExtension = img.name.split('.').pop()?.toLowerCase()
 
+    console.log("FILE EXTENSION", fileExtension)
+
     if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
       toast({
         title: 'Invalid file type',
@@ -117,8 +119,7 @@ export default function ProfilePictureClient() {
             type: 'image/jpeg',
           })
         }
-
-        // Use the new file object as needed (e.g., setting state)
+        
         setImg(img)
       } catch (error) {
         console.error('Error getting the blob from file: ', error)
@@ -142,6 +143,7 @@ export default function ProfilePictureClient() {
     if (!img || !croppedAreaPixels) return
 
     setIsLoading(true)
+    console.log(croppedAreaPixels)
 
     try {
       const croppedImage = await getCroppedImg(
