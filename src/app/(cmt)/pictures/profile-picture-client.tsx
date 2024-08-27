@@ -79,7 +79,18 @@ export default function ProfilePictureClient() {
   )
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const supportedFileTypes = ['heic', 'png', 'jpg', 'jpeg']
+
     let img = acceptedFiles[0]
+    const fileExtension = img.name.split('.').pop()?.toLowerCase()
+
+    if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload a HEIC, PNG, JPG, or JPEG file',
+      })
+      return
+    }
 
     const isHeic = img.name.split('.').pop()?.toLowerCase() === 'heic'
 
