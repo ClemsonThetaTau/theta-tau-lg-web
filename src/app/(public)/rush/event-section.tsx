@@ -64,7 +64,7 @@ export const EventSection = ({
           (max-width: 600px) 480px,
           (max-width: 1200px) 800px,
           1200px"
-          className="h-[50dvh] w-auto md:h-[75dvh]"
+          className="w-auto h-[40dvh] md:h-auto md:p-16"
         />
       </div>
     </div>
