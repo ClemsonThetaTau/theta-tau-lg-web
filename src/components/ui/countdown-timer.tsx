@@ -31,7 +31,7 @@ const calculateTimeLeft = (targetDate: Date): TimeLeft => {
   return timeLeft
 }
 
-const AnimatedNumber = ({ value }: { value: number }) => (
+const AnimatedNumber = ({ value }: { value: number | string }) => (
   <div className="relative h-16 w-16 overflow-hidden rounded bg-primary">
     <AnimatePresence mode="popLayout">
       <motion.div
@@ -61,7 +61,13 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     return () => clearInterval(timer)
   }, [targetDate])
 
-  const { days, hours, minutes, seconds } = timeLeft
+  var { days, hours, minutes, seconds }: { days: number | string, hours: number | string, minutes: number | string, seconds: number | string } = timeLeft
+  if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0) {
+    days = "N"
+    hours = "O"
+    minutes = "W"
+    seconds = "!"
+  }
 
   return (
     <div className="flex justify-center space-x-4">
