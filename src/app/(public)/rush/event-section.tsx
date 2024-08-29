@@ -39,20 +39,20 @@ export const EventSection = ({
     >
       <div className="order-2 md:order-1 row-span-2 md:row-span-1 self-start md:self-auto">
         <DynamicCountdownTimer targetDate={date} />
-        <h2 className="text-primary m-4 mt-8 text-xl md:text-5xl font-bold w-auto text-center">
+        <h2 className="text-primary mt-8 text-xl md:text-5xl font-bold w-auto text-center">
           {title}
         </h2>
-        <p className="text-foreground md:text-lg p-2 md:px-8 text-center">
-          {description}
-        </p>
         <a
           href={`https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:underline text-center block mt-4"
+          className="text-primary hover:underline text-center block md:text-xl md:mt-2 md:mb-4"
         >
           {location.name}
         </a>
+        <p className="text-foreground md:text-lg p-2 md:px-8 text-center">
+          {description}
+        </p>
       </div>
       <div className="order-1 md:order-2 flex justify-center">
         <Image
@@ -64,7 +64,7 @@ export const EventSection = ({
           (max-width: 600px) 480px,
           (max-width: 1200px) 800px,
           1200px"
-          className="h-[50dvh] w-auto md:h-[75dvh]"
+          className="w-auto h-[40dvh] md:h-auto md:p-16"
         />
       </div>
     </div>
