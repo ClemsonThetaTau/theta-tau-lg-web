@@ -2,7 +2,7 @@ import { EventSection } from './event-section'
 
 export default function Rush() {
   var offset = -300; //Timezone offset for EST in minutes.
-  const targetDate = new Date('2024-08-30T23:00:00Z')
+  const targetDate = new Date('2024-08-30T22:00:00Z')
 
   return (
     <div className="container mx-auto p-4">
