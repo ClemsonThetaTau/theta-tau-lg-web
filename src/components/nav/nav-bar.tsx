@@ -28,10 +28,10 @@ export default function NavBar() {
       label: 'Brothers',
       href: '/brothers',
     },
-    {
-      label: 'Rush',
-      href: '/rush',
-    },
+    // {
+    //   label: 'Rush',
+    //   href: '/rush',
+    // },
   ]
 
   return (
