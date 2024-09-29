@@ -4,6 +4,8 @@ import { useDropzone } from 'react-dropzone'
 import Cropper from 'react-easy-crop'
 import { ImSpinner3 } from 'react-icons/im'
 
+import heic2any from 'heic2any'
+
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -39,9 +41,55 @@ const ProfilePicture = ({ url }: ProfilePictureProps) => {
     setCroppedAreaPixels(croppedAreaPixels)
   }, [])
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const supportedFileTypes = ['heic', 'png', 'jpg', 'jpeg']
+
     let img = acceptedFiles[0]
-    setImg(img)
+    const fileExtension = img.name.split('.').pop()?.toLowerCase()
+
+    console.log("FILE EXTENSION", fileExtension)
+
+    if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload a HEIC, PNG, JPG, or JPEG file',
+      })
+      return
+    }
+
+    const isHeic = img.name.split('.').pop()?.toLowerCase() === 'heic'
+
+    if (isHeic) {
+      try {
+        const arrayBuffer = await img.arrayBuffer()
+        const blob = new Blob([arrayBuffer], { type: img.type })
+        // Convert HEIC to JPEG
+        const convertedBlob = await heic2any({
+          blob: blob,
+          toType: 'image/jpeg',
+        })
+
+        if (Array.isArray(convertedBlob)) {
+          // Handle case where convertedBlob is an array
+          img = new File(
+            [convertedBlob[0]],
+            img.name.replace('.heic', '.jpg'),
+            { type: 'image/jpeg' }
+          )
+        } else {
+          // Handle case where convertedBlob is a single Blob
+          img = new File([convertedBlob], img.name.replace('.heic', '.jpg'), {
+            type: 'image/jpeg',
+          })
+        }
+        
+        setImg(img)
+      } catch (error) {
+        console.error('Error getting the blob from file: ', error)
+      }
+    } else {
+      setImg(img)
+    }
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })

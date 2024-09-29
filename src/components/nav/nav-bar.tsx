@@ -33,7 +33,7 @@ export default function NavBar() {
     //   href: '/rush',
     // },
   ]
-
+  
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/50 backdrop-filter backdrop-blur-md">
       <div className="w-full flex items-center justify-center flex-wrap p-4">
