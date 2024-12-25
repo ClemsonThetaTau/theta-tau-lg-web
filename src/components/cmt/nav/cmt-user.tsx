@@ -1,7 +1,5 @@
 "use client"
 
-import { UserCog } from "lucide-react"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   SidebarMenu,
@@ -40,7 +38,6 @@ export function CMTUser({ user }: CMTUserProps) {
               <span className="truncate font-semibold">{user.name}</span>
               <span className="truncate text-xs">{user.email}</span>
             </div>
-            <UserCog className="ml-auto size-3.5" />
           </a>
         </SidebarMenuButton>
       </SidebarMenuItem>

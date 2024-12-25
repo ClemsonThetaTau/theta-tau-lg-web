@@ -2,7 +2,6 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import {
-  Command,
   Settings2,
   Users,
   LayoutDashboard,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/collapsible"
 import {
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuButton,
@@ -46,48 +46,63 @@ interface NavItem {
   isActive?: boolean
 }
 
+interface NavGroup {
+  label: string
+  items: NavItem[]
+}
+
 const data = {
-  navMain: [
+  navGroups: [
     {
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      isActive: true,
+      label: "Platform",
       items: [
         {
-          title: "Overview",
-          url: "/dashboard",
+          title: "Dashboard",
+          icon: LayoutDashboard,
+          isActive: true,
+          items: [
+            {
+              title: "Overview", 
+              url: "/dashboard",
+            },
+          ],
         },
-      ],
+        {
+          title: "Apps",
+          icon: AppWindow,
+          items: [
+            {
+              title: "Contact Cards",
+              url: "/dashboard/apps/contact-cards",
+              icon: Contact,
+            },
+            {
+              title: "LLMs",
+              url: "/dashboard/apps/llms", 
+              icon: Bot,
+            },
+          ],
+        },
+      ]
     },
     {
-      title: "Apps",
-      icon: AppWindow,
+      label: "Administration",
       items: [
         {
-          title: "Contact Cards",
-          url: "/dashboard/apps/contact-cards",
-          icon: Contact,
-        },
-        {
-          title: "LLMs",
-          url: "/dashboard/apps/llms",
-          icon: Bot,
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      icon: Settings2,
-      items: [
-        {
-          title: "Profile",
-          url: "/dashboard/settings/profile",
-          icon: UserCog,
-        },
-        {
-          title: "Account",
-          url: "/dashboard/settings/account",
-          icon: Users,
+          title: "Settings",
+          icon: Settings2,
+          items: [
+            {
+              title: "Profile",
+              url: "/dashboard/settings/profile",
+              icon: UserCog,
+            },
+            {
+              title: "Account", 
+              url: "/dashboard/settings/account",
+              icon: Users,
+            },
+          ],
         },
         {
           title: "Web Chair",
@@ -103,56 +118,62 @@ const data = {
             },
           ],
         },
-      ],
-    },
-  ] as NavItem[],
+      ]
+    }
+  ] as NavGroup[],
 }
+
 
 export function CMTNav() {
   return (
-    <SidebarGroup>
-      <SidebarMenu className="gap-2">
-        {data.navMain.map((item) => (
-          <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  <item.icon className="size-3.5" />
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              {item.items?.length ? (
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
-                            {subItem.icon && <subItem.icon className="size-3.5" />}
-                            <span>{subItem.title}</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                        {subItem.items?.length ? (
-                          <SidebarMenuSub>
-                            {subItem.items.map((nestedItem) => (
-                              <SidebarMenuSubItem key={nestedItem.title}>
-                                <SidebarMenuSubButton asChild>
-                                  <a href={nestedItem.url}>{nestedItem.title}</a>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        ) : null}
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              ) : null}
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
+    <>
+      {data.navGroups.map((group) => (
+        <SidebarGroup key={group.label}>
+          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+          <SidebarMenu>
+            {group.items.map((item) => (
+              <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.title}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                      <ChevronRight className="ml-auto size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  {item.items?.length ? (
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <a href={subItem.url}>
+                                {subItem.icon && <subItem.icon />}
+                                <span>{subItem.title}</span>
+                              </a>
+                            </SidebarMenuSubButton>
+                            {subItem.items?.length ? (
+                              <SidebarMenuSub>
+                                {subItem.items.map((nestedItem) => (
+                                  <SidebarMenuSubItem key={nestedItem.title}>
+                                    <SidebarMenuSubButton asChild>
+                                      <a href={nestedItem.url}>{nestedItem.title}</a>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                ))}
+                              </SidebarMenuSub>
+                            ) : null}
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  ) : null}
+                </SidebarMenuItem>
+              </Collapsible>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      ))}
+    </>
   )
 }

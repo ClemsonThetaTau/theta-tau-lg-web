@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Command } from "lucide-react"
+import Image from "next/image"
 
 import {
   Sidebar,
@@ -29,7 +29,12 @@ export function CMTSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-3.5" />
+                  <Image
+                    src="/images/crest.png"
+                    alt="Theta Tau Crest"
+                    width={32}
+                    height={32}
+                  />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Theta Tau</span>
