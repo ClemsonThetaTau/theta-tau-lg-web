@@ -1,14 +1,13 @@
-import './cmt.css'
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import "./cmt.css"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 
-import NavBar from '@/components/nav/nav-bar'
-import { Toaster } from '@/components/ui/toaster'
+import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'Clemson Theta Tau CMT',
+  title: "Clemson Theta Tau CMT",
   description:
     "The In-House Chapter Management Tool for the Theta Tau Lambda Gamma Chapter.",
 }
@@ -20,10 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <main>
+      <body className={`${inter.className} min-h-screen`}>
         {children}
-        </main>
         <Toaster />
       </body>
     </html>
