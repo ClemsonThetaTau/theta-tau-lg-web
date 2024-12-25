@@ -28,12 +28,13 @@ export function CMTSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Image
                     src="/images/crest.png"
                     alt="Theta Tau Crest"
-                    width={32}
+                    width={24}
                     height={32}
+                    className="object-contain"
                   />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">

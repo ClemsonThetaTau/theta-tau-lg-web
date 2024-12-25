@@ -134,7 +134,7 @@ export function CMTNav() {
             {group.items.map((item) => (
               <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
                 <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger asChild className="group">
                     <SidebarMenuButton tooltip={item.title}>
                       <item.icon />
                       <span>{item.title}</span>

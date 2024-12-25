@@ -15,9 +15,9 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen w-full">
         <CMTSidebar />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 w-0 overflow-hidden">
           <div className="p-8">
             {children}
           </div>
