@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { toast } from '@/components/ui/use-toast'
 
 interface UserEditModalProps {
   user: UserInfo
@@ -31,6 +32,37 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
   const [editedUser, setEditedUser] = React.useState<UserInfo>(user)
 
   const handleSave = () => {
+    // Validate required fields
+    if (!editedUser.firstName || !editedUser.lastName || !editedUser.email || !editedUser.major || !editedUser.pledgeClass) {
+      toast({
+        title: "Missing Required Fields",
+        description: "Please fill in all required fields: First Name, Last Name, Email, Major, and Pledge Class",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(editedUser.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Validate badge number
+    if (editedUser.badgeNumber <= 0) {
+      toast({
+        title: "Invalid Badge Number",
+        description: "Badge number must be greater than 0",
+        variant: "destructive"
+      })
+      return
+    }
+
     onSave(editedUser)
     onClose()
   }
@@ -39,15 +71,15 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{user.firstName ? 'Edit User' : 'Add New User'}</DialogTitle>
           <DialogDescription>
-            Update user information and settings.
+            {user.firstName ? 'Update user information and settings.' : 'Enter information for the new user.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="firstName" className="text-right">
-              First Name
+              First Name *
             </Label>
             <Input
               id="firstName"
@@ -60,7 +92,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="lastName" className="text-right">
-              Last Name
+              Last Name *
             </Label>
             <Input
               id="lastName"
@@ -73,7 +105,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="email" className="text-right">
-              Email
+              Email *
             </Label>
             <Input
               id="email"
@@ -87,7 +119,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="major" className="text-right">
-              Major
+              Major *
             </Label>
             <Input
               id="major"
@@ -100,7 +132,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="badgeNumber" className="text-right">
-              Badge Number
+              Badge Number *
             </Label>
             <Input
               id="badgeNumber"
@@ -114,7 +146,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="pledgeClass" className="text-right">
-              Pledge Class
+              Pledge Class *
             </Label>
             <Input
               id="pledgeClass"

@@ -1,3 +1,10 @@
+// This component provides a data table for managing users with features for:
+// - Adding new users manually via a form
+// - Importing users from CSV
+// - Editing existing users
+// - Filtering and sorting users
+// - Customizing visible columns
+
 'use client'
 
 import * as React from 'react'
@@ -21,7 +28,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-
 import {
   Table,
   TableBody,
@@ -30,7 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-
 import { DataTablePagination } from './data-table-pagination'
 import { UserInfo, createColumns } from './columns'
 import { Upload } from 'lucide-react'
@@ -54,9 +59,10 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
   }
 
   const handleSaveUser = (updatedUser: UserInfo) => {
-    const newData = data.map((user) =>
-      user.id === updatedUser.id ? updatedUser : user
-    )
+    const isNewUser = !data.find(user => user.id === updatedUser.id)
+    const newData = isNewUser 
+      ? [...data, updatedUser]
+      : data.map((user) => user.id === updatedUser.id ? updatedUser : user)
     onDataChange(newData)
   }
 
@@ -120,9 +126,30 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
           }
           className="max-w-sm"
         />
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={() => {
+            setEditingUser({
+              id: crypto.randomUUID(),
+              firstName: '',
+              lastName: '',
+              major: '',
+              badgeNumber: 0,
+              pledgeClass: '',
+              status: 'active',
+              email: '',
+              phone: '',
+              role: 'member',
+              graduationYear: new Date().getFullYear(),
+            })
+          }}
+        >
+          + Add User
+        </Button>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-4">
               <Upload className="mr-2 h-4 w-4" />
               Import CSV
             </Button>
