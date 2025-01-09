@@ -19,15 +19,15 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "../../../../../../components/ui/data-entry/button"
+import { Input } from "../../../../../../components/ui/data-entry/input"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+} from "../../../../../../components/ui/data-entry/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../../../../../components/ui/overlay/dialog"
 import {
   Table,
   TableBody,
@@ -35,7 +35,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "../../../../../../components/ui/data-table/table"
 import { DataTablePagination } from './data-table-pagination'
 import { UserInfo, createColumns } from './columns'
 import { Upload } from 'lucide-react'

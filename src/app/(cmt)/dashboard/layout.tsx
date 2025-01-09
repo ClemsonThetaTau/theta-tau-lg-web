@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 import { CMTSidebar } from "@/components/cmt/nav/cmt-sidebar"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/navigation/sidebar"
 
 export const metadata: Metadata = {
   title: "Dashboard",

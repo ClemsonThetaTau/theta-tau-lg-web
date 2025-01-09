@@ -1,8 +1,9 @@
 'use client'
 
-import { ColumnDef, FilterFn } from '@tanstack/react-table'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ColumnDef, FilterFn } from "@tanstack/react-table"
+import { Button } from "@/components/ui/data-entry/button"
+import { Checkbox } from "@/components/ui/data-entry/checkbox"
+import { ChevronUp, ChevronDown } from "lucide-react"
 
 export type BrotherInfo = {
   id: string
@@ -11,7 +12,7 @@ export type BrotherInfo = {
   major: string
   badgeNumber: number
   pledgeClass: string
-  status: 'active' | 'inactive'
+  status: "active" | "inactive"
   email: string
   phone: string
 }
@@ -27,12 +28,12 @@ const nameFilterFn: FilterFn<BrotherInfo> = (row, columnId, filterValue) => {
 
 export const columns: ColumnDef<BrotherInfo>[] = [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -49,8 +50,23 @@ export const columns: ColumnDef<BrotherInfo>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'name',
-    header: 'Name',
+    accessorKey: "name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Name
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const firstName = row.original.firstName
       const lastName = row.original.lastName
@@ -59,31 +75,111 @@ export const columns: ColumnDef<BrotherInfo>[] = [
       return (
         <div>
           <div>{`${firstName} ${lastName}`}</div>
-          <div style={{ color: 'lightgray' }}>{major}</div>
+          <div style={{ color: "lightgray" }}>{major}</div>
         </div>
       )
     },
-    filterFn: nameFilterFn, // Add the custom filter function here
+    filterFn: nameFilterFn,
+    sortingFn: (rowA, rowB) => {
+      const aName = `${rowA.original.firstName} ${rowA.original.lastName}`.toLowerCase()
+      const bName = `${rowB.original.firstName} ${rowB.original.lastName}`.toLowerCase()
+      return aName.localeCompare(bName)
+    },
   },
   {
-    accessorKey: 'badgeNumber',
-    header: 'Badge Number',
+    accessorKey: "badgeNumber",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Badge Number
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
-    accessorKey: 'pledgeClass',
-    header: 'Pledge Class',
+    accessorKey: "pledgeClass",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Pledge Class
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Status
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
+    accessorKey: "email",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Email
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
-    accessorKey: 'phone',
-    header: 'Phone',
-    cell: ({ getValue }) => <div style={{ minWidth: '120px' }}>{getValue<string>()}</div>, // Making the phone cell wider
+    accessorKey: "phone",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Phone
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
+    cell: ({ getValue }) => <div style={{ minWidth: "120px" }}>{getValue<string>()}</div>,
   },
 ]

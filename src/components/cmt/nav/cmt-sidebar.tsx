@@ -11,7 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/navigation/sidebar"
 import { CMTNav } from "./cmt-nav"
 import { CMTUser } from "./cmt-user"
 

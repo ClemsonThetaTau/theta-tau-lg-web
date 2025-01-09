@@ -1,31 +1,18 @@
-// It's wild how incredibly useful chat gpt has become, this woudl've taken forever
-// before but now its just a couple minutes of prompt engineering, kinda speeding thru
-// deving this website rn. I'm curious to see what ppl think of it.
-
-// I'm also curious who's gonna read this, the next web chair perhaps? or somebody
-// even later down the line. If you are one of those ppl and don't know me. Hello!
-// I'm gonna be a Junior next year and I'm a CS Major, names AP, sorry for the ratshit
-// code, I'm just speeding thru. Finished the serious part of the backend and coded this
-// app in like 5 hours over the past day or two. Just kinda working on this whenever my
-// AI research lightens up enough for me to squeeze in some extra time.
-
 'use client'
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-
 import { auth } from '@/firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { db } from '@/firebase/firebase'
 import { doc, getDocs, setDoc, collection } from 'firebase/firestore'
-
-import { SkeletonForm } from '@/components/ui/skeleton-form'
+import { Button } from '@/components/ui/data-entry/button'
+import { SkeletonForm } from '@/components/ui/feedback/skeleton-form'
 import { BrotherInfo, columns } from './columns'
-import { DataTable } from './data-table'
+import { DataTable } from '@/components/ui/data-table/data-table'
 
-export default function DemoPage() {
+export default function ContactCardsPage() {
   const { push } = useRouter()
-
   const [data, setData] = useState<BrotherInfo[]>()
 
   useEffect(() => {
@@ -39,7 +26,6 @@ export default function DemoPage() {
               ...doc.data(),
             } as BrotherInfo)
         )
-
         setData(usersArray)
       } catch (error) {
         console.error('Error fetching users: ', error)
@@ -54,13 +40,58 @@ export default function DemoPage() {
       }
     })
 
-    // Cleanup subscription on unmount
     return () => unsubscribe()
   }, [push])
 
+  const exportContactCards = () => {
+    if (!data) return
+
+    const vCardData = data
+      .map((contact) => {
+        return `BEGIN:VCARD
+VERSION:3.0
+N:${contact.lastName};${contact.firstName};;;
+FN:${contact.firstName} ${contact.lastName}
+ORG:Theta Tau ΛΓ - ${contact.pledgeClass}
+EMAIL;TYPE=PERSONAL:${contact.email}
+TEL;TYPE=MOBILE,VOICE:${contact.phone}
+END:VCARD`
+      })
+      .join('\n')
+
+    const vCardBlob = new Blob([vCardData], { type: 'text/vcard' })
+    const url = URL.createObjectURL(vCardBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'contacts.vcf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const renderTopToolbar = () => (
+    <Button
+      variant="outline"
+      className="ml-auto"
+      onClick={exportContactCards}
+    >
+      Export Contacts
+    </Button>
+  )
+
   return (
     <div className="container mx-auto py-10">
-      {data && <DataTable columns={columns} data={data} /> || <SkeletonForm />}
+      {data ? (
+        <DataTable
+          columns={columns}
+          data={data}
+          defaultSorting={[{ id: 'name', desc: true }]}
+          renderTopToolbar={renderTopToolbar}
+        />
+      ) : (
+        <SkeletonForm />
+      )}
     </div>
   )
 }

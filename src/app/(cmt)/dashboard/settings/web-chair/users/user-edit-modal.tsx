@@ -2,24 +2,24 @@
 
 import React from 'react'
 import { UserInfo } from './columns'
-import { Button } from '@/components/ui/button'
+import { Button } from "../../../../../../components/ui/data-entry/button"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "../../../../../../components/ui/overlay/dialog"
+import { Input } from "../../../../../../components/ui/data-entry/input"
+import { Label } from "../../../../../../components/ui/forms/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { toast } from '@/components/ui/use-toast'
+} from "../../../../../../components/ui/data-entry/select"
+import { toast } from "../../../../../../components/ui/feedback/use-toast"
 
 interface UserEditModalProps {
   user: UserInfo
@@ -85,7 +85,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               id="firstName"
               className="col-span-3"
               value={editedUser.firstName}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, firstName: e.target.value }))
               }
             />
@@ -98,7 +98,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               id="lastName"
               className="col-span-3"
               value={editedUser.lastName}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, lastName: e.target.value }))
               }
             />
@@ -112,7 +112,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               type="email"
               className="col-span-3"
               value={editedUser.email}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, email: e.target.value }))
               }
             />
@@ -125,7 +125,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               id="major"
               className="col-span-3"
               value={editedUser.major}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, major: e.target.value }))
               }
             />
@@ -139,7 +139,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               type="number"
               className="col-span-3"
               value={editedUser.badgeNumber}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, badgeNumber: parseInt(e.target.value) }))
               }
             />
@@ -152,7 +152,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               id="pledgeClass"
               className="col-span-3"
               value={editedUser.pledgeClass}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, pledgeClass: e.target.value }))
               }
             />
@@ -204,7 +204,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               id="phone"
               className="col-span-3"
               value={editedUser.phone}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, phone: e.target.value }))
               }
             />
@@ -218,7 +218,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
               type="number"
               className="col-span-3"
               value={editedUser.graduationYear}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEditedUser((prev) => ({ ...prev, graduationYear: parseInt(e.target.value) }))
               }
             />

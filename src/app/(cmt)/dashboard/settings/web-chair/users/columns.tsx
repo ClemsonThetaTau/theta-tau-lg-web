@@ -1,10 +1,10 @@
 'use client'
 
-import { ColumnDef, FilterFn } from '@tanstack/react-table'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Pencil } from 'lucide-react'
+import { ColumnDef, FilterFn } from "@tanstack/react-table"
+import { Badge } from "../../../../../../components/ui/data-display/badge"
+import { Checkbox } from "../../../../../../components/ui/data-entry/checkbox"
+import { Button } from "../../../../../../components/ui/data-entry/button"
+import { MoreHorizontal, Pencil, ChevronUp, ChevronDown } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "../../../../../../components/ui/data-entry/dropdown-menu"
 
 export type UserInfo = {
   id: string
@@ -66,7 +66,22 @@ export const createColumns = ({ onEdit }: ColumnOptions): ColumnDef<UserInfo>[] 
   },
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Name
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const firstName = row.original.firstName
       const lastName = row.original.lastName
@@ -92,15 +107,60 @@ export const createColumns = ({ onEdit }: ColumnOptions): ColumnDef<UserInfo>[] 
   },
   {
     accessorKey: 'badgeNumber',
-    header: 'Badge Number',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Badge Number
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
     accessorKey: 'pledgeClass',
-    header: 'Pledge Class',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Pledge Class
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Status
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const status = row.original.status
       return (
@@ -112,7 +172,22 @@ export const createColumns = ({ onEdit }: ColumnOptions): ColumnDef<UserInfo>[] 
   },
   {
     accessorKey: 'role',
-    header: 'Role',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Role
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const role = row.original.role
       return (
@@ -124,7 +199,22 @@ export const createColumns = ({ onEdit }: ColumnOptions): ColumnDef<UserInfo>[] 
   },
   {
     accessorKey: 'graduationYear',
-    header: 'Grad Year',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center gap-1"
+        >
+          Grad Year
+          {column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-1 h-4 w-4" />
+          ) : column.getIsSorted() === "desc" ? (
+            <ChevronDown className="ml-1 h-4 w-4" />
+          ) : null}
+        </Button>
+      )
+    },
   },
   {
     id: 'actions',

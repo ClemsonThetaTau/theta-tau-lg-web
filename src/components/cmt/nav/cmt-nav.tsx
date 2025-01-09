@@ -16,7 +16,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/data-display/collapsible"
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -27,7 +27,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/navigation/sidebar"
 
 interface SubItem {
   title: string

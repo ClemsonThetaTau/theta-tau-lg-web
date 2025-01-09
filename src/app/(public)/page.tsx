@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import Banner from '@/components/sections/home/banner'
-import Pillars from '@/components/sections/home/pillars'
-import SocialsFooter from '@/components/sections/home/socials-footer'
+import Banner from '@/components/public/sections/home/banner'
+import Pillars from '@/components/public/sections/home/pillars'
+import SocialsFooter from '@/components/public/sections/home/socials-footer'
 
 import { Button } from '@/components/ui/button'
 import { ImageData } from '@/components/ui/carousel'
