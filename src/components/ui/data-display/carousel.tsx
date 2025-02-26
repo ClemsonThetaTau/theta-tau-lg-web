@@ -178,7 +178,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
   }
 
   return (
-    <div className="group container mx-6 px-0 min-w-[320px] w-full">
+    (<div className="group container mx-6 px-0 min-w-[320px] w-full">
       <div className="relative px-2">
         <div className="relative overflow-hidden">
           <motion.ul
@@ -208,10 +208,12 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
             {images.map((img, index) => {
               const active = index === activeSlide
               return (
-                <motion.li
+                (<motion.li
                   layout
                   key={img.title}
-                  ref={(el) => (itemsRef.current[index] = el)}
+                  ref={el => {
+                    (itemsRef.current[index] = el);
+                  }}
                   className={cn(
                     'group relative shrink-0 select-none px-3 transition-opacity duration-300',
                     !active && 'opacity-30'
@@ -264,8 +266,8 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
                       {img.title}
                     </Link>
                   </div>
-                </motion.li>
-              )
+                </motion.li>)
+              );
             })}
           </motion.ul>
         </div>
@@ -302,8 +304,8 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
           <BsArrowRight className="h-10 w-10 stroke-[1.5] text-primary transition-colors group-enabled:group-hover:text-primary/50 group-disabled:opacity-50" />
         </button>
       </div>
-    </div>
-  )
+    </div>)
+  );
 }
 
 export default Carousel
