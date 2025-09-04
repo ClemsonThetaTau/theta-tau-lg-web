@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { BiLogIn, BiMenu } from 'react-icons/bi'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { Separator } from '@/components/ui/separator'
+import { Separator } from '@/components/ui/data-display/separator'
 import { NavItem } from './nav-item'
 
 export default function NavBar() {

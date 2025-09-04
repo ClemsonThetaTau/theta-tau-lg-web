@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 
-import { SocialButton } from '@/components/ui/socials'
+import { SocialButton } from '@/components/ui/data-display/socials'
 import { AiFillFacebook, AiFillInstagram, AiFillMail } from 'react-icons/ai'
 
 const SocialsFooter: React.FC = () => {
