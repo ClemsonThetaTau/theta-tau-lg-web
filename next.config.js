@@ -14,6 +14,9 @@ const nextConfig = {
 
     return webpackConfig
   },
+    experimental: {
+    reactCompiler: false,
+  },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default withPayload(nextConfig)
