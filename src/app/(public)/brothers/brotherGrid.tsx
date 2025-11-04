@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { PublicBrother, PublicBrotherData } from '@/components/types/brother'
-import { Headshot, SkeletonHeadshot } from '@/components/ui/headshot'
+import { Headshot, SkeletonHeadshot } from '@/components/ui/data-display/headshot'
 
 import { db } from '@/firebase/firebase'
 import { doc, getDoc } from 'firebase/firestore'

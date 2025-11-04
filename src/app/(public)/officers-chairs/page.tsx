@@ -16,7 +16,7 @@ import { set } from 'react-hook-form'
 import OfficerGrid from "./officerGrid"
 import ChairGrid from "./chairGrid"
 
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/data-display/separator"
 
 export default function OfficersChairs() {
     const [officers, setofficers] = useState<PublicOfficerData>()

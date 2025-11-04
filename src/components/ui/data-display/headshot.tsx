@@ -1,6 +1,6 @@
 import React from 'react'
 import { PublicBrother } from '@/components/types/brother'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@/components/ui/feedback/skeleton'
 
 interface HeadshotProps {
   brother: PublicBrother

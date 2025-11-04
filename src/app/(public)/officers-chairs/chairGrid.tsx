@@ -1,6 +1,6 @@
 import { PublicBrother, PublicOfficerData } from '@/components/types/brother'
 
-import { PositionHeadshot, SkeletonHeadshot } from '@/components/ui/headshot'
+import { PositionHeadshot, SkeletonHeadshot } from '@/components/ui/data-display/headshot'
 
 interface ChairGridProps {
   officers: PublicOfficerData | undefined

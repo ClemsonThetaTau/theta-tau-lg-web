@@ -1,6 +1,8 @@
+'use client'
+
 import dynamic from 'next/dynamic'
 
-const DynamicCarousel = dynamic(() => import('@/components/ui/carousel'), {
+const DynamicCarousel = dynamic(() => import('./carousel'), {
   ssr: false
 })
 

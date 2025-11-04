@@ -3,9 +3,9 @@ import Banner from '@/components/public/sections/home/banner'
 import Pillars from '@/components/public/sections/home/pillars'
 import SocialsFooter from '@/components/public/sections/home/socials-footer'
 
-import { Button } from '@/components/ui/button'
-import { ImageData } from '@/components/ui/carousel'
-import DynamicCarousel from '@/components/ui/dynamic-carousel'
+import { Button } from '@/components/ui/data-entry/button'
+import { ImageData } from '@/components/ui/data-display/carousel'
+import DynamicCarousel from '@/components/ui/data-display/dynamic-carousel'
 
 const images: ImageData[] = [
   {
