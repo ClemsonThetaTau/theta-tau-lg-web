@@ -19,6 +19,8 @@ export const admins: Access = ({ req: { user } }) => {
  * Following Payload's recommended pattern
  */
 export const adminsOrSelf: Access = ({ req: { user }, id }) => {
+    console.log('adminsOrSelf', user, id)
+    console.log('user is admin', user?.role === 'admin')
   // Scenario 1 - Check if user has the 'admin' role
   if (user && user.role === 'admin') {
     return true
