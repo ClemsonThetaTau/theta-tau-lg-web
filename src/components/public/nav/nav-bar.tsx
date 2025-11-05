@@ -1,82 +1,63 @@
-'use client'
+import NavBarContent from './nav-bar-content'
 
-import React, { useState } from 'react'
-import Image from 'next/image'
-import { BiLogIn, BiMenu } from 'react-icons/bi'
-import { AnimatePresence, motion } from 'framer-motion'
+// Server component to fetch navigation items
+async function getNavItems() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/api/pages?where[status][equals]=published&where[showInNav][equals]=true&limit=100`,
+      {
+        next: { revalidate: 300 }, // Revalidate every 5 minutes
+      }
+    )
 
-import { Separator } from '@/components/ui/data-display/separator'
-import { NavItem } from './nav-item'
+    if (!res.ok) {
+      // Return default nav items if fetch fails
+      return getDefaultNavItems()
+    }
 
-export default function NavBar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const data = await res.json()
+    
+    if (!data.docs || data.docs.length === 0) {
+      return getDefaultNavItems()
+    }
 
-  const navItems = [
-    {
-      label: 'Home',
-      href: '/',
-    },
-    {
-      label: 'About Us',
-      href: '/about-us',
-    },
-    {
-      label: 'Officers & Chairs',
-      href: '/officers-chairs',
-    },
-    {
-      label: 'Brothers',
-      href: '/brothers',
-    },
-    // {
-    //   label: 'Rush',
-    //   href: '/rush',
-    // },
+    // Sort by navOrder (or default to order they come in)
+    const sortedPages = data.docs.sort((a: any, b: any) => {
+      const orderA = a.navOrder || 999
+      const orderB = b.navOrder || 999
+      return orderA - orderB
+    })
+
+    // Map to nav items
+    const navItems = sortedPages.map((page: any) => ({
+      label: page.navLabel || page.title,
+      href: `/${page.slug}`,
+    }))
+
+    // Always add home at the beginning if not already there
+    const hasHome = navItems.some((item: any) => item.href === '/')
+    if (!hasHome) {
+      navItems.unshift({ label: 'Home', href: '/' })
+    }
+
+    return navItems
+  } catch (error) {
+    console.error('Error fetching nav items:', error)
+    return getDefaultNavItems()
+  }
+}
+
+function getDefaultNavItems() {
+  return [
+    { label: 'Home', href: '/' },
+    { label: 'About Us', href: '/about-us' },
+    { label: 'Officers & Chairs', href: '/officers-chairs' },
+    { label: 'Brothers', href: '/brothers' },
   ]
-  
-  return (
-    <nav className="sticky top-0 z-50 w-full bg-background/50 backdrop-filter backdrop-blur-md">
-      <div className="w-full flex items-center justify-center flex-wrap p-4">
-        <div className="flex items-center flex-shrink-0 mr-12">
-          <Image
-            src="/images/logo-2.png"
-            alt="Theta Tau Lambda Gamma Second Logo"
-            width={120}
-            height={120}
-          />
-        </div>
-        <div className="text-base mr-16 lg:block hidden">
-          {navItems.map((item) => (
-            <NavItem key={item.href} href={item.href}>
-              {item.label}
-            </NavItem>
-          ))}
-        </div>
-        <a className="hover:text-accent-foreground transition-colors" href='/login'>
-          <BiLogIn className="h-6 w-6"/>
-        </a>
-        <button className="lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          <BiMenu className="h-6 w-6 ml-4"/>
-        </button>
-      </div>
-      <AnimatePresence>
-                {isMobileMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -25 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -25 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full flex flex-col items-center mb-8 lg:hidden"
-                  >
-                    {navItems.map((item) => (
-                      <NavItem key={item.href} href={item.href}>
-                        {item.label}
-                      </NavItem>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-      <Separator className="w-full bg-gray-200" />
-    </nav>
-  )
+}
+
+export default async function NavBar() {
+  const navItems = await getNavItems()
+
+  return <NavBarContent navItems={navItems} />
 }

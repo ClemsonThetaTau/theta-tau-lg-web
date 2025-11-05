@@ -127,10 +127,10 @@ export const Settings: GlobalConfig = {
     },
   ],
   access: {
+    // Anyone can read settings
     read: () => true,
-    update: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    // Only admins can update site settings
+    update: ({ req: { user } }) => user?.role === 'admin',
   },
 }
 

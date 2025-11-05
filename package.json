@@ -11,6 +11,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "seed:pages": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-pages.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
@@ -72,6 +73,7 @@
   "devDependencies": {
     "@types/node": "^24.3.1",
     "cross-env": "^10.0.0",
-    "eslint-config-prettier": "^9.0.0"
+    "eslint-config-prettier": "^9.0.0",
+    "tsx": "^4.20.6"
   }
 }

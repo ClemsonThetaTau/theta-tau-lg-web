@@ -174,9 +174,9 @@ export interface User {
    */
   bio?: string | null;
   /**
-   * System access level (only admins and web chairs can change this)
+   * Admin: Full access. User: Can edit own profile only.
    */
-  role: 'admin' | 'web-chair' | 'member';
+  role: 'admin' | 'user';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -248,8 +248,6 @@ export interface Media {
   };
 }
 /**
- * Create officers here, then use the CMT Dashboard at /dashboard/settings/web-chair/officers-and-chairs to arrange their order with drag-and-drop.
- *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "officers".
  */
@@ -260,13 +258,13 @@ export interface Officer {
    */
   user: string | User;
   /**
-   * Currently active position
-   */
-  isActive?: boolean | null;
-  /**
    * Position type
    */
-  type: 'ec' | 'chair';
+  type: 'executive-committee' | 'committee-chair';
+  /**
+   * Display order - lower numbers appear first
+   */
+  displayOrder?: number | null;
   /**
    * e.g., "Regent", "Social Chair", "Webmaster"
    */
@@ -286,17 +284,17 @@ export interface Officer {
       )
     | null;
   /**
-   * Display order - lower numbers appear first. Use the CMT Dashboard for drag-and-drop reordering.
-   */
-  displayOrder?: number | null;
-  /**
    * Term start date
    */
-  termStart?: string | null;
+  termStart: string;
   /**
-   * Term end date (optional)
+   * Term end date (leave empty for current position)
    */
   termEnd?: string | null;
+  /**
+   * Auto-computed: position is active if no end date or end date is in the future
+   */
+  isActive?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -307,18 +305,24 @@ export interface Officer {
 export interface Page {
   id: string;
   /**
-   * The title of the page
+   * Page title - shown in browser tab and navigation
    */
   title: string;
   /**
-   * URL path for the page (e.g., "about-us", "brothers")
+   * URL path (auto-generates from title)
    */
   slug: string;
   status: 'draft' | 'published' | 'archived';
+  /**
+   * Build your page by adding content blocks
+   */
   layout: (
     | {
         heading: string;
         subheading?: string | null;
+        /**
+         * Background image for the hero section
+         */
         backgroundImage?: (string | null) | Media;
         ctaText?: string | null;
         ctaLink?: string | null;
@@ -361,7 +365,10 @@ export interface Page {
       }
     | {
         heading?: string | null;
-        filterByStatus?: ('active' | 'alumni' | 'inactive')[] | null;
+        /**
+         * Which members to display
+         */
+        filterByStatus?: ('active' | 'alumni' | 'pledge')[] | null;
         id?: string | null;
         blockName?: string | null;
         blockType: 'brothersDisplay';
@@ -425,17 +432,29 @@ export interface Page {
         blockType: 'callToAction';
       }
   )[];
+  /**
+   * Display this page in the main navigation menu
+   */
+  showInNav?: boolean | null;
+  /**
+   * Order in navigation menu (lower = first)
+   */
+  navOrder?: number | null;
+  /**
+   * Custom label for navigation (defaults to page title)
+   */
+  navLabel?: string | null;
   seo?: {
     /**
-     * SEO title (defaults to page title)
+     * SEO title (defaults to page title if empty)
      */
     title?: string | null;
     /**
-     * SEO meta description
+     * Meta description for search engines (150-160 characters recommended)
      */
     description?: string | null;
     /**
-     * SEO preview image
+     * Social media preview image
      */
     image?: (string | null) | Media;
   };
@@ -623,13 +642,13 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface OfficersSelect<T extends boolean = true> {
   user?: T;
-  isActive?: T;
   type?: T;
+  displayOrder?: T;
   positionName?: T;
   ecPosition?: T;
-  displayOrder?: T;
   termStart?: T;
   termEnd?: T;
+  isActive?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -771,6 +790,9 @@ export interface PagesSelect<T extends boolean = true> {
               blockName?: T;
             };
       };
+  showInNav?: T;
+  navOrder?: T;
+  navLabel?: T;
   seo?:
     | T
     | {

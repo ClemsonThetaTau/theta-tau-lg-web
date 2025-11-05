@@ -173,9 +173,9 @@ export const Blog: CollectionConfig = {
     },
   ],
   access: {
-    // Public can read published posts
+    // Admins see all, public only sees published
     read: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
+      if (user?.role === 'admin') {
         return true
       }
       return {
@@ -184,11 +184,11 @@ export const Blog: CollectionConfig = {
         },
       }
     },
-    // Members can create blog posts (web-chairs and admins can publish)
-    create: ({ req: { user } }) => !!user,
-    // Authors can update their own posts, web-chairs and admins can update all
+    // Authenticated users can create posts (as drafts)
+    create: ({ req: { user } }) => Boolean(user),
+    // Authors can update their own posts, admins can update all
     update: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
+      if (user?.role === 'admin') {
         return true
       }
       return {
@@ -197,10 +197,8 @@ export const Blog: CollectionConfig = {
         },
       }
     },
-    // Only web-chairs and admins can delete posts
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    // Only admins can delete posts
+    delete: ({ req: { user } }) => user?.role === 'admin',
   },
 }
 

@@ -46,41 +46,6 @@ export const PayloadAPI = {
     })
   },
 
-  // Brothers
-  async getBrothers(options?: { limit?: number; where?: any }) {
-    const payload = await getPayloadInstance()
-    return payload.find({
-      collection: 'brothers',
-      limit: options?.limit || 100,
-      where: options?.where || { isPublic: { equals: true } },
-    })
-  },
-
-  async getBrotherById(id: string) {
-    const payload = await getPayloadInstance()
-    return payload.findByID({
-      collection: 'brothers',
-      id,
-    })
-  },
-
-  async createBrother(data: any) {
-    const payload = await getPayloadInstance()
-    return payload.create({
-      collection: 'brothers',
-      data,
-    })
-  },
-
-  async updateBrother(id: string, data: any) {
-    const payload = await getPayloadInstance()
-    return payload.update({
-      collection: 'brothers',
-      id,
-      data,
-    })
-  },
-
   // Officers
   async getOfficers(options?: { limit?: number; where?: any }) {
     const payload = await getPayloadInstance()
@@ -132,6 +97,55 @@ export const PayloadAPI = {
       collection: 'media',
       data: data || {},
       file,
+    })
+  },
+
+  // Pages
+  async getPages(options?: { limit?: number; where?: any }) {
+    const payload = await getPayloadInstance()
+    return payload.find({
+      collection: 'pages',
+      limit: options?.limit || 50,
+      where: options?.where,
+    })
+  },
+
+  async getPageBySlug(slug: string) {
+    const payload = await getPayloadInstance()
+    const result = await payload.find({
+      collection: 'pages',
+      where: {
+        slug: {
+          equals: slug,
+        },
+      },
+      limit: 1,
+    })
+    return result.docs[0]
+  },
+
+  async getPageById(id: string) {
+    const payload = await getPayloadInstance()
+    return payload.findByID({
+      collection: 'pages',
+      id,
+    })
+  },
+
+  async createPage(data: any) {
+    const payload = await getPayloadInstance()
+    return payload.create({
+      collection: 'pages',
+      data,
+    })
+  },
+
+  async updatePage(id: string, data: any) {
+    const payload = await getPayloadInstance()
+    return payload.update({
+      collection: 'pages',
+      id,
+      data,
     })
   },
 }

@@ -15,25 +15,69 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  admin: {
-    user: Users.slug,
-    importMap: {
-      baseDir: path.resolve(dirname),
-    },
-    components: {
-      // Add custom navigation items
-      beforeNavLinks: [],
-      afterNavLinks: [],
-    },
-  },
-  collections: [Users, Officers, Media, Pages, Blog],
-  globals: [Settings],
-  editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
+  // Basic config
+  secret: process.env.PAYLOAD_SECRET || 'your-secret-key-here',
+  
+  // Database
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || '',
   }),
+  
+  // Collections & Globals
+  collections: [Users, Officers, Media, Pages, Blog],
+  globals: [Settings],
+  
+  // Editor
+  editor: lexicalEditor(),
+  
+  // TypeScript
+  typescript: {
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+  
+  // Admin panel
+  admin: {
+    user: Users.slug,
+    meta: {
+      titleSuffix: '- Theta Tau Lambda Gamma',
+      favicon: '/icon.ico',
+      ogImage: '/images/logo-2.png',
+    },
+    livePreview: {
+      // Enable live preview for all collections that support it
+      breakpoints: [
+        {
+          label: 'Mobile',
+          name: 'mobile',
+          width: 375,
+          height: 667,
+        },
+        {
+          label: 'Tablet',
+          name: 'tablet',
+          width: 768,
+          height: 1024,
+        },
+        {
+          label: 'Desktop',
+          name: 'desktop',
+          width: 1440,
+          height: 900,
+        },
+      ],
+    },
+  },
+  
+  // Server URL for live preview
+  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  
+  // CORS
+  cors: [
+    process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  ].filter(Boolean),
+  
+  // CSRF
+  csrf: [
+    process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  ].filter(Boolean),
 })

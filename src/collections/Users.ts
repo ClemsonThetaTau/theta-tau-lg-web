@@ -183,53 +183,67 @@ export const Users: CollectionConfig = {
       ],
     },
     
-    // System Role
+    // System Role (Payload standard)
     {
-      type: 'collapsible',
-      label: 'System Permissions',
-      admin: {
-        condition: (data, siblingData, { user }) => {
-          return user?.role === 'admin' || user?.role === 'web-chair'
-        },
-      },
-      fields: [
-        {
-          name: 'role',
-          type: 'select',
-          required: true,
-          defaultValue: 'member',
-          options: [
-            { label: 'Admin', value: 'admin' },
-            { label: 'Web Chair', value: 'web-chair' },
-            { label: 'Member', value: 'member' },
-          ],
-          admin: {
-            description: 'System access level (only admins and web chairs can change this)',
-          },
-        },
+      name: 'role',
+      type: 'select',
+      required: true,
+      defaultValue: 'user',
+      saveToJWT: true,
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'User', value: 'user' },
       ],
+      admin: {
+        position: 'sidebar',
+        description: 'Admin: Full access. User: Can edit own profile only.',
+      },
+      access: {
+        // Only admins can change roles
+        update: ({ req: { user } }) => user?.role === 'admin',
+      },
     },
   ],
   access: {
     // Only admins can create new users
-    create: ({ req: { user } }) => {
-      return user?.role === 'admin'
-    },
-    // Users can read their own data, web-chairs can read all, admins can read all
-    // Public can read users with displayOnWebsite=true and status active/alumni
+    create: ({ req: { user } }) => user?.role === 'admin',
+    
+    // Read access: Admins see all, users see themselves, public sees displayOnWebsite users
     read: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
+      // Admins can see all
+      if (user?.role === 'admin') {
         return true
       }
+      
+      // Logged-in users can see their own data
       if (user) {
-        // Logged in users can see their own data
         return {
-          id: {
-            equals: user?.id,
-          },
+          or: [
+            {
+              id: {
+                equals: user.id,
+              },
+            },
+            // Plus public profiles
+            {
+              and: [
+                {
+                  displayOnWebsite: {
+                    equals: true,
+                  },
+                },
+                {
+                  status: {
+                    in: ['active', 'alumni'],
+                  },
+                },
+              ],
+            },
+          ],
         }
       }
-      // Public can see displayed active/alumni members
+      
+      // Public can only see displayed active/alumni members
       return {
         and: [
           {
@@ -245,21 +259,22 @@ export const Users: CollectionConfig = {
         ],
       }
     },
-    // Users can update their own data, web-chairs can update all, admins can update all
+    
+    // Update: Admins can update all, users can update themselves
     update: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
+      if (user?.role === 'admin') {
         return true
       }
+      // Users can only update their own profile
       return {
         id: {
           equals: user?.id,
         },
       }
     },
+    
     // Only admins can delete users
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin'
-    },
+    delete: ({ req: { user } }) => user?.role === 'admin',
   },
   hooks: {
     beforeChange: [

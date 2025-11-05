@@ -49,11 +49,10 @@ export const Media: CollectionConfig = {
   access: {
     // Public can read media
     read: () => true,
-    // Only authenticated users can create/update/delete
-    create: ({ req: { user } }) => !!user,
-    update: ({ req: { user } }) => !!user,
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    // Only authenticated users can upload
+    create: ({ req: { user } }) => Boolean(user),
+    update: ({ req: { user } }) => Boolean(user),
+    // Only admins can delete
+    delete: ({ req: { user } }) => user?.role === 'admin',
   },
 }
