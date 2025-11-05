@@ -1,28 +1,36 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PublicBrother, PublicBrotherData } from '@/components/types/brother'
+import { PublicBrother } from '@/components/types/brother'
 import { Headshot, SkeletonHeadshot } from '@/components/ui/data-display/headshot'
-
-import { db } from '@/firebase/firebase'
-import { doc, getDoc } from 'firebase/firestore'
 
 export default function BrotherGrid() {
   const [brothers, setBrothers] = useState<PublicBrother[]>()
 
   useEffect(() => {
-    // Fetch brothers data from database
+    // Fetch users who should be displayed on the website
     const fetchData = async () => {
-      const brothersDoc = doc(db, 'public', 'brothers')
-      const brothersSnapshot = await getDoc(brothersDoc)
-      const brothersData: PublicBrotherData = brothersSnapshot.data() as PublicBrotherData
-      const brothersList = brothersData.displayOrder.map((userId: any) => {
-        const brother = brothersData.brotherList[userId] as PublicBrother
-
-        return brother
-      })
-      setBrothers(brothersList)
-      console.log(brothersData)
+      try {
+        const response = await fetch('/api/users?where[displayOnWebsite][equals]=true&where[status][in][0]=active&where[status][in][1]=alumni&sort=badgeNumber')
+        const data = await response.json()
+        
+        // Transform Payload data to match PublicBrother format
+        const brothersList = data.docs.map((user: any) => ({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          displayName: `${user.firstName} ${user.lastName}`,
+          email: user.displayEmail,
+          major: user.major,
+          profilePicture: typeof user.profilePicture === 'object' 
+            ? user.profilePicture.url 
+            : user.profilePicture,
+          status: user.status,
+        }))
+        
+        setBrothers(brothersList)
+      } catch (error) {
+        console.error('Error fetching brothers:', error)
+      }
     }
     fetchData()
   }, [])

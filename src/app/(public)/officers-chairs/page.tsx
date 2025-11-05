@@ -6,12 +6,7 @@ import { useState, useEffect } from 'react'
 import {
   PublicBrother,
   PublicOfficerData,
-  PublicBrotherData,
 } from '@/components/types/brother'
-
-import { db } from '@/firebase/firebase'
-import { doc, getDoc } from 'firebase/firestore'
-import { set } from 'react-hook-form'
 
 import OfficerGrid from "./officerGrid"
 import ChairGrid from "./chairGrid"
@@ -23,20 +18,51 @@ export default function OfficersChairs() {
     const [brothers, setBrothers] = useState<{ [key: string]: PublicBrother }>()
 
     useEffect(() => {
-        // Fetch officers data from database
+        // Fetch officers data from Payload
         const fetchData = async () => {
-        const officersDoc = doc(db, 'public', 'officers')
-        const officersSnapshot = await getDoc(officersDoc)
-        const officersData: PublicOfficerData =
-            officersSnapshot.data() as PublicOfficerData
+        try {
+            const officersResponse = await fetch('/api/officers?where[isActive][equals]=true&sort=displayOrder')
+            const officersData = await officersResponse.json()
 
-        const brothersDoc = doc(db, 'public', 'brothers')
-        const brothersSnapshot = await getDoc(brothersDoc)
-        const brothersData: PublicBrotherData =
-            brothersSnapshot.data() as PublicBrotherData
+            const usersResponse = await fetch('/api/users?where[displayOnWebsite][equals]=true')
+            const usersData = await usersResponse.json()
 
-        setofficers(officersData)
-        setBrothers(brothersData.brotherList)
+            // Transform Payload data to match existing format
+            const officersMap: any = {
+                ec: {},
+                chair: {}
+            }
+
+            officersData.docs.forEach((officer: any) => {
+                const userId = typeof officer.user === 'object' ? officer.user.id : officer.user
+                const type = officer.type === 'ec' ? 'ec' : 'chair'
+                
+                officersMap[type][userId] = {
+                    position: officer.positionName,
+                    ecPosition: officer.ecPosition,
+                }
+            })
+
+            const brothersMap: any = {}
+            usersData.docs.forEach((user: any) => {
+                brothersMap[user.id] = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    displayName: `${user.firstName} ${user.lastName}`,
+                    email: user.displayEmail,
+                    major: user.major,
+                    profilePicture: typeof user.profilePicture === 'object' 
+                        ? user.profilePicture.url 
+                        : user.profilePicture,
+                    status: user.status,
+                }
+            })
+
+            setofficers(officersMap)
+            setBrothers(brothersMap)
+        } catch (error) {
+            console.error('Error fetching officers:', error)
+        }
         }
         fetchData()
     }, [])

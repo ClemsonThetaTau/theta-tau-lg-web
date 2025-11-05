@@ -8,7 +8,7 @@ import { ImSpinner3 } from 'react-icons/im'
 
 import heic2any from 'heic2any'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/data-entry/button'
 import {
   Dialog,
   DialogContent,
@@ -17,18 +17,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { toast } from '@/components/ui/use-toast'
+} from '@/components/ui/overlay/dialog'
+import { toast } from '@/components/ui/feedback/use-toast'
 import { getCroppedImg } from '@/lib/crop-image'
 
-import { storage, db, auth } from '@/firebase/firebase'
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { doc, setDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 import { BrothersCombobox, ComboboxItem } from './brother-combobox'
-
-import { PublicBrotherData } from '@/components/types/brother'
-
-import { getDoc } from 'firebase/firestore'
 
 export default function ProfilePictureClient() {
   const [img, setImg] = useState<File | null>(null)
@@ -48,24 +42,22 @@ export default function ProfilePictureClient() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const brothersDoc = doc(db, 'public', 'brothers')
-      const brothersSnapshot = await getDoc(brothersDoc)
-      const brothersData: PublicBrotherData =
-        brothersSnapshot.data() as PublicBrotherData
-      const brothersList = brothersData.displayOrder.map((userId: any) => {
-        const data = brothersData.brotherList[userId]
-        const brother: ComboboxItem = {
-          value: userId,
-          label: `${data.firstName} ${data.lastName}`,
-        }
+      try {
+        const response = await fetch('/api/users?where[status][in][0]=active&where[status][in][1]=alumni&where[status][in][2]=pledge&sort=lastName')
+        const data = await response.json()
+        
+        const brothersList: ComboboxItem[] = data.docs.map((user: any) => ({
+          value: user.id,
+          label: `${user.firstName} ${user.lastName}`,
+        }))
 
-        return brother
-      })
-
-      const sortedBrothers = brothersList
-        .slice()
-        .sort((a, b) => a.label.localeCompare(b.label))
-      setBrothers(sortedBrothers)
+        const sortedBrothers = brothersList
+          .slice()
+          .sort((a, b) => a.label.localeCompare(b.label))
+        setBrothers(sortedBrothers)
+      } catch (error) {
+        console.error('Error fetching users:', error)
+      }
     }
 
     fetchData()
@@ -143,7 +135,6 @@ export default function ProfilePictureClient() {
     if (!img || !croppedAreaPixels) return
 
     setIsLoading(true)
-    console.log(croppedAreaPixels)
 
     try {
       const croppedImage = await getCroppedImg(
@@ -151,33 +142,34 @@ export default function ProfilePictureClient() {
         croppedAreaPixels
       )
 
-      const storageRef = ref(storage, `profile-pictures/${selectedBrother}.jpg`)
-      const uploadTask = uploadBytesResumable(storageRef, croppedImage)
+      // Upload to Payload media collection
+      const formData = new FormData()
+      formData.append('file', croppedImage, `profile-${selectedBrother}.jpg`)
+      formData.append('alt', 'Brother profile picture')
 
-      uploadTask.on(
-        'state_changed',
-        () => {},
-        (error) => {
-          console.error(error)
-          toast({
-            title: 'Error',
-            description: 'Unable to upload profile picture',
-          })
-          setIsLoading(false)
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-          const userDoc = doc(db, 'users', selectedBrother)
-          await setDoc(
-            userDoc,
-            { profilePicture: downloadURL },
-            { merge: true }
-          )
-          toast({ title: 'Success', description: 'Profile picture updated' })
+      const uploadResponse = await fetch('/api/media', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      })
 
-          setIsLoading(false)
-        }
-      )
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image')
+      }
+
+      const uploadResult = await uploadResponse.json()
+      const mediaId = uploadResult.doc.id
+
+      // Update brother's profile picture in Users collection
+      await fetch(`/api/users/${selectedBrother}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ profilePicture: mediaId }),
+      })
+
+      toast({ title: 'Success', description: 'Profile picture updated' })
+      setIsLoading(false)
     } catch (error) {
       console.error(error)
       toast({ title: 'Error', description: 'Something went wrong' })

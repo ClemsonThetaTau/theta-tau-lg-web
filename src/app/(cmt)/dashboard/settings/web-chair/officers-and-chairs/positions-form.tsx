@@ -4,17 +4,14 @@ import React, { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import { auth } from '@/firebase/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
-import { db, storage } from '@/firebase/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/data-entry/button'
 import {
   Form,
   FormControl,
@@ -23,13 +20,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@/components/ui/forms/form'
 
 import { BrotherCommandItem, BrotherCombobox } from './brother-combobox'
 
-import { Input } from '@/components/ui/input'
-import { toast } from '@/components/ui/use-toast'
-import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/data-entry/input'
+import { toast } from '@/components/ui/feedback/use-toast'
+import { Label } from '@/components/ui/forms/label'
 import { MinusCircle } from 'lucide-react'
 
 const positionsFormSchema = z.object({
@@ -84,7 +81,7 @@ export function PositionsForm({
     mode: 'onChange',
   })
 
-  function onSubmit(data: PositionsFormValues) {
+  async function onSubmit(data: PositionsFormValues) {
     const {
       regent,
       viceRegent,
@@ -97,40 +94,74 @@ export function PositionsForm({
       chairTitles,
     } = data
 
-    const userRef = doc(db, 'public', 'officers')
-    const officersData = {
-      chairs:
-        chairs && chairTitles
-          ? chairs.map((item, index) => ({userId: item.value, posName: chairTitles[index].value}))
-          : [],
-      ec: {
-        regent: regent,
-        viceRegent: viceRegent,
-        scribe: scribe,
-        treasurer: treasurer,
-        delegateAtLarge: delegateAtLarge,
-        correspondingSecretary: correspondingSecretary,
-        newMemberEducator: newMemberEducator,
-      },
+    try {
+      // First, fetch all existing officers to update or delete
+      const officersResponse = await fetch('/api/officers')
+      const existingOfficers = await officersResponse.json()
+
+      // Deactivate all existing officers
+      for (const officer of existingOfficers.docs) {
+        await fetch(`/api/officers/${officer.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ isActive: false }),
+        })
+      }
+
+      // Create or update EC positions
+      const ecPositions = [
+        { ecPosition: 'regent', user: regent, positionName: 'Regent', type: 'ec' },
+        { ecPosition: 'viceRegent', user: viceRegent, positionName: 'Vice Regent', type: 'ec' },
+        { ecPosition: 'scribe', user: scribe, positionName: 'Scribe', type: 'ec' },
+        { ecPosition: 'treasurer', user: treasurer, positionName: 'Treasurer', type: 'ec' },
+        { ecPosition: 'delegateAtLarge', user: delegateAtLarge, positionName: 'Delegate at Large', type: 'ec' },
+        { ecPosition: 'correspondingSecretary', user: correspondingSecretary, positionName: 'Corresponding Secretary', type: 'ec' },
+        { ecPosition: 'newMemberEducator', user: newMemberEducator, positionName: 'New Member Educator', type: 'ec' },
+      ]
+
+      for (const position of ecPositions) {
+        await fetch('/api/officers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            ...position,
+            isActive: true,
+            displayOrder: 0,
+          }),
+        })
+      }
+
+      // Create chair positions
+      if (chairs && chairTitles) {
+        for (let i = 0; i < chairs.length; i++) {
+          await fetch('/api/officers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              user: chairs[i].value,
+              positionName: chairTitles[i].value,
+              type: 'chair',
+              isActive: true,
+              displayOrder: i + 1,
+            }),
+          })
+        }
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Positions updated successfully',
+      })
+    } catch (error) {
+      console.error('Error updating positions', error)
+      toast({
+        title: 'Error',
+        description: "Error updating positions, make sure you're the web chair!",
+      })
     }
-
-    console.log(officersData)
-
-    setDoc(userRef, officersData, { merge: true })
-      .then(() => {
-        toast({
-          title: 'Form Submission:',
-          description: 'Positions updated successfully',
-        })
-      })
-      .catch((error) => {
-        console.error('Error updating positions', error)
-        toast({
-          title: 'Form Submission:',
-          description:
-            "Error updating positions, make sure you're the web chair!",
-        })
-      })
   }
 
   const chairFieldArray = useFieldArray({

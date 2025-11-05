@@ -5,24 +5,14 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
-import { auth } from '@/firebase/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
-import { db, storage } from '@/firebase/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
-
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from 'firebase/storage'
+import { useAuth } from '@/lib/auth-context'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/data-entry/button'
 import {
   Form,
   FormControl,
@@ -31,7 +21,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@/components/ui/forms/form'
 import {
   Dialog,
   DialogContent,
@@ -40,10 +30,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { toast } from '@/components/ui/use-toast'
-import { Label } from '@/components/ui/label'
+} from '@/components/ui/overlay/dialog'
+import { Input } from '@/components/ui/data-entry/input'
+import { toast } from '@/components/ui/feedback/use-toast'
+import { Label } from '@/components/ui/forms/label'
 
 import { ProfilePicture } from './profile-picture'
 
@@ -81,22 +71,20 @@ export function ProfileForm({
   defaultValues: Partial<ProfileFormValues>,
   profilePicture: string
 }) {
+  const { user } = useAuth()
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
     mode: 'onChange',
   })
 
-  function onSubmit(data: ProfileFormValues) {
+  async function onSubmit(data: ProfileFormValues) {
     const { firstName, lastName, displayEmail } = data
 
-    const uid = auth.currentUser?.uid
-
-    if (!uid) {
+    if (!user) {
       return
     }
 
-    const userRef = doc(db, 'users', uid)
     const userData = {
       firstName,
       lastName,
@@ -104,20 +92,25 @@ export function ProfileForm({
       profilePicture,
     }
 
-    setDoc(userRef, userData, { merge: true })
-      .then(() => {
-        toast({
-          title: 'You submitted the following values:',
-          description: 'Profile updated successfully',
-        })
+    try {
+      await fetch(`/api/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(userData),
       })
-      .catch((error) => {
-        console.error('Error updating profile', error)
-        toast({
-          title: 'You submitted the following values:',
-          description: 'Error updating profile',
-        })
+
+      toast({
+        title: 'Success',
+        description: 'Profile updated successfully',
       })
+    } catch (error) {
+      console.error('Error updating profile', error)
+      toast({
+        title: 'Error',
+        description: 'Error updating profile',
+      })
+    }
   }
 
   return (

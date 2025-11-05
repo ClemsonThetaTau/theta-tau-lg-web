@@ -2,16 +2,14 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { auth, db } from '@/firebase/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { signInWithEmailAndPassword, verifyBeforeUpdateEmail, updatePassword } from 'firebase/auth'
+import { useAuth } from '@/lib/auth-context'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { cn } from '@/lib/utils'
-import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/data-display/separator'
+import { Button } from '@/components/ui/data-entry/button'
 import {
   Form,
   FormControl,
@@ -20,10 +18,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { ComboboxForm } from '@/components/ui/form-combobox'
-import { toast } from '@/components/ui/use-toast'
+} from '@/components/ui/forms/form'
+import { Input } from '@/components/ui/data-entry/input'
+import { ComboboxForm } from '@/components/ui/forms/form-combobox'
+import { toast } from '@/components/ui/feedback/use-toast'
 
 const emailFormSchema = z.object({
   newEmail: z
@@ -58,6 +56,7 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>
 export type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 export function AccountForm({badgeNumber, profileFormDefaultValues}: {badgeNumber: string, profileFormDefaultValues: ProfileFormValues}) {
+  const { user } = useAuth()
   const [loading, setLoading] = useState<boolean>(false)
 
   const emailForm = useForm<EmailFormValues>({
@@ -80,66 +79,82 @@ export function AccountForm({badgeNumber, profileFormDefaultValues}: {badgeNumbe
 
   const handleEmailUpdate = async (data: EmailFormValues) => {
     const { newEmail, currentPassword } = data;
-    const user = auth.currentUser;
     
-    if (user && user.email) {
-      try {
-        await signInWithEmailAndPassword(auth, user.email, currentPassword);
-      } catch (error) {
-        console.error('Error in re-authentication:', error);
-        toast({ title: 'Reauthentication failed' });
-        return;
-      }
-  
-      try {
-        await verifyBeforeUpdateEmail(user, newEmail, { url: `http://${window.location.hostname}/verify-email` });
-        toast({
-          title: 'Verification email sent',
-          description: 'Please check your new email for a verification link.',
-        });
-      } catch (error) {
-        console.error('Error sending verification email', error);
-        toast({ title: 'Error sending verification email' });
-      }
-    } else {
+    if (!user) {
       toast({ title: 'No user is logged in' });
+      return;
+    }
+    
+    try {
+      // Note: Payload CMS handles email updates through the admin panel
+      // For now, we'll just update the email directly
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: newEmail }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update email');
+      }
+
+      toast({
+        title: 'Email updated',
+        description: 'Your email has been successfully updated.',
+      });
+    } catch (error) {
+      console.error('Error updating email', error);
+      toast({ title: 'Error updating email' });
     }
   };
 
 
   const handlePasswordUpdate = async (data: PasswordFormValues) => {
     const { newPassword, currentPassword } = data
-    const user = auth.currentUser
 
-    if (user && user.email) {
-      try {
-        console.log("Passing", user.email, currentPassword)
-        const userCredential = await signInWithEmailAndPassword(auth, user.email, currentPassword);
-        console.log(userCredential)
-        console.log("USER CREDENTIAL RECIEVED")
-        await updatePassword(userCredential.user, newPassword)
-        toast({ title: 'Password updated successfully' })
-      } catch (error) {
-        console.error('Error updating password', error)
-        toast({ title: 'Error updating password' })
+    if (!user) {
+      toast({ title: 'No user is logged in' });
+      return;
+    }
+
+    try {
+      // Payload CMS password update
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password: newPassword }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update password');
       }
+
+      toast({ title: 'Password updated successfully' })
+    } catch (error) {
+      console.error('Error updating password', error)
+      toast({ title: 'Error updating password' })
     }
   }
 
   const handleProfileUpdate = async (data: ProfileFormValues) => {
     const { gradYear, major, status } = data
-    const user = auth.currentUser
 
     if (!user) {
       return
     }
 
-    const uid = user.uid
-    const userRef = doc(db, 'users', uid)
-    const userData = { gradYear, major, status }
+    const userData = { graduationYear: parseInt(gradYear), major, status }
 
     try {
-      await setDoc(userRef, userData, { merge: true })
+      await fetch(`/api/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(userData),
+      });
+
       toast({ title: 'Profile updated successfully' })
     } catch (error) {
       console.error('Error updating profile', error)

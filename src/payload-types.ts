@@ -68,9 +68,10 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    brothers: Brother;
     officers: Officer;
     media: Media;
+    pages: Page;
+    blog: Blog;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -78,9 +79,10 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    brothers: BrothersSelect<false> | BrothersSelect<true>;
     officers: OfficersSelect<false> | OfficersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    blog: BlogSelect<false> | BlogSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -88,8 +90,12 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    settings: Setting;
+  };
+  globalsSelect: {
+    settings: SettingsSelect<false> | SettingsSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -123,17 +129,54 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  /**
+   * Profile picture displayed on the website
+   */
+  profilePicture?: (string | null) | Media;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'web-chair' | 'member';
-  major?: string | null;
-  badgeNumber?: number | null;
-  pledgeClass?: string | null;
-  status?: ('active' | 'alumni' | 'inactive' | 'pledge') | null;
-  phone?: string | null;
-  graduationYear?: number | null;
+  /**
+   * Email shown on the public website (optional)
+   */
   displayEmail?: string | null;
-  profilePicture?: (string | null) | Media;
+  /**
+   * Phone number for internal directory
+   */
+  phone?: string | null;
+  /**
+   * Current membership status
+   */
+  status: 'active' | 'alumni' | 'inactive' | 'pledge' | 'pnm';
+  /**
+   * National badge number
+   */
+  badgeNumber?: number | null;
+  /**
+   * e.g., "Alpha", "Beta", "Spring 2024"
+   */
+  pledgeClass?: string | null;
+  /**
+   * Date of initiation into the chapter
+   */
+  initiationDate?: string | null;
+  major?: string | null;
+  graduationYear?: number | null;
+  /**
+   * Optional minor or concentration
+   */
+  minor?: string | null;
+  /**
+   * Show this person on the public brothers page (only applies to Active/Alumni)
+   */
+  displayOnWebsite?: boolean | null;
+  /**
+   * Optional biography for the website
+   */
+  bio?: string | null;
+  /**
+   * System access level (only admins and web chairs can change this)
+   */
+  role: 'admin' | 'web-chair' | 'member';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -205,62 +248,31 @@ export interface Media {
   };
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brothers".
- */
-export interface Brother {
-  id: string;
-  /**
-   * Link this brother profile to a user account
-   */
-  user: string | User;
-  /**
-   * Full name as displayed on the website
-   */
-  displayName: string;
-  firstName: string;
-  lastName: string;
-  /**
-   * Email displayed on the public website
-   */
-  displayEmail?: string | null;
-  major: string;
-  /**
-   * Profile picture displayed on the website
-   */
-  profilePicture?: (string | null) | Media;
-  status: 'active' | 'alumni' | 'inactive';
-  /**
-   * Order in which this brother appears on the website (lower numbers first)
-   */
-  displayOrder?: number | null;
-  /**
-   * Whether this brother profile is visible on the public website
-   */
-  isPublic?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
+ * Create officers here, then use the CMT Dashboard at /dashboard/settings/web-chair/officers-and-chairs to arrange their order with drag-and-drop.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "officers".
  */
 export interface Officer {
   id: string;
   /**
-   * Name of the position (e.g., "Regent", "Vice Regent", "Social Chair")
-   */
-  positionName: string;
-  /**
    * User who holds this position
    */
   user: string | User;
   /**
-   * Whether this is an Executive Committee position or a Chair position
+   * Currently active position
+   */
+  isActive?: boolean | null;
+  /**
+   * Position type
    */
   type: 'ec' | 'chair';
   /**
-   * Specific Executive Committee position
+   * e.g., "Regent", "Social Chair", "Webmaster"
+   */
+  positionName: string;
+  /**
+   * Select EC position (for Executive Committee only)
    */
   ecPosition?:
     | (
@@ -274,23 +286,230 @@ export interface Officer {
       )
     | null;
   /**
-   * Whether this position assignment is currently active
+   * Display order - lower numbers appear first. Use the CMT Dashboard for drag-and-drop reordering.
    */
-  isActive?: boolean | null;
+  displayOrder?: number | null;
   /**
-   * When this person started in this position
+   * Term start date
    */
   termStart?: string | null;
   /**
-   * When this person's term ends (optional)
+   * Term end date (optional)
    */
   termEnd?: string | null;
-  /**
-   * Order for displaying positions (lower numbers first)
-   */
-  displayOrder?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: string;
+  /**
+   * The title of the page
+   */
+  title: string;
+  /**
+   * URL path for the page (e.g., "about-us", "brothers")
+   */
+  slug: string;
+  status: 'draft' | 'published' | 'archived';
+  layout: (
+    | {
+        heading: string;
+        subheading?: string | null;
+        backgroundImage?: (string | null) | Media;
+        ctaText?: string | null;
+        ctaLink?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'hero';
+      }
+    | {
+        richText: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'content';
+      }
+    | {
+        title?: string | null;
+        images?:
+          | {
+              image: string | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'imageGallery';
+      }
+    | {
+        heading?: string | null;
+        filterByStatus?: ('active' | 'alumni' | 'inactive')[] | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'brothersDisplay';
+      }
+    | {
+        heading?: string | null;
+        showExecutiveCommittee?: boolean | null;
+        showChairs?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'officersDisplay';
+      }
+    | {
+        leftColumn: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        rightColumn: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'twoColumn';
+      }
+    | {
+        heading: string;
+        description?: string | null;
+        buttons?:
+          | {
+              label: string;
+              link: string;
+              style?: ('primary' | 'secondary' | 'outline') | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'callToAction';
+      }
+  )[];
+  seo?: {
+    /**
+     * SEO title (defaults to page title)
+     */
+    title?: string | null;
+    /**
+     * SEO meta description
+     */
+    description?: string | null;
+    /**
+     * SEO preview image
+     */
+    image?: (string | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog".
+ */
+export interface Blog {
+  id: string;
+  title: string;
+  /**
+   * URL-friendly version of the title
+   */
+  slug: string;
+  /**
+   * Author of the blog post
+   */
+  author: string | User;
+  status: 'draft' | 'published' | 'archived';
+  /**
+   * Date the blog post was/will be published
+   */
+  publishedDate?: string | null;
+  /**
+   * Featured image for the blog post
+   */
+  featuredImage?: (string | null) | Media;
+  /**
+   * Short excerpt for blog post previews
+   */
+  excerpt?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  categories?: ('brotherhood' | 'professional' | 'service' | 'recruitment' | 'alumni' | 'events' | 'news')[] | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  seo?: {
+    /**
+     * SEO title (defaults to post title)
+     */
+    title?: string | null;
+    /**
+     * SEO meta description (defaults to excerpt)
+     */
+    description?: string | null;
+    /**
+     * SEO preview image (defaults to featured image)
+     */
+    image?: (string | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -304,16 +523,20 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
-        relationTo: 'brothers';
-        value: string | Brother;
-      } | null)
-    | ({
         relationTo: 'officers';
         value: string | Officer;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'blog';
+        value: string | Blog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -362,17 +585,21 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  profilePicture?: T;
   firstName?: T;
   lastName?: T;
-  role?: T;
-  major?: T;
+  displayEmail?: T;
+  phone?: T;
+  status?: T;
   badgeNumber?: T;
   pledgeClass?: T;
-  status?: T;
-  phone?: T;
+  initiationDate?: T;
+  major?: T;
   graduationYear?: T;
-  displayEmail?: T;
-  profilePicture?: T;
+  minor?: T;
+  displayOnWebsite?: T;
+  bio?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -392,35 +619,17 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brothers_select".
- */
-export interface BrothersSelect<T extends boolean = true> {
-  user?: T;
-  displayName?: T;
-  firstName?: T;
-  lastName?: T;
-  displayEmail?: T;
-  major?: T;
-  profilePicture?: T;
-  status?: T;
-  displayOrder?: T;
-  isPublic?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "officers_select".
  */
 export interface OfficersSelect<T extends boolean = true> {
-  positionName?: T;
   user?: T;
-  type?: T;
-  ecPosition?: T;
   isActive?: T;
+  type?: T;
+  positionName?: T;
+  ecPosition?: T;
+  displayOrder?: T;
   termStart?: T;
   termEnd?: T;
-  displayOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -479,6 +688,133 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              heading?: T;
+              subheading?: T;
+              backgroundImage?: T;
+              ctaText?: T;
+              ctaLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        content?:
+          | T
+          | {
+              richText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              title?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        brothersDisplay?:
+          | T
+          | {
+              heading?: T;
+              filterByStatus?: T;
+              id?: T;
+              blockName?: T;
+            };
+        officersDisplay?:
+          | T
+          | {
+              heading?: T;
+              showExecutiveCommittee?: T;
+              showChairs?: T;
+              id?: T;
+              blockName?: T;
+            };
+        twoColumn?:
+          | T
+          | {
+              leftColumn?: T;
+              rightColumn?: T;
+              id?: T;
+              blockName?: T;
+            };
+        callToAction?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    link?: T;
+                    style?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog_select".
+ */
+export interface BlogSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  author?: T;
+  status?: T;
+  publishedDate?: T;
+  featuredImage?: T;
+  excerpt?: T;
+  content?: T;
+  categories?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
@@ -508,6 +844,101 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: string;
+  siteName: string;
+  siteDescription?: string | null;
+  logo?: (string | null) | Media;
+  favicon?: (string | null) | Media;
+  socialLinks?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    twitter?: string | null;
+    linkedin?: string | null;
+    email?: string | null;
+  };
+  navigation?:
+    | {
+        label: string;
+        link: string;
+        order?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  footer?: {
+    copyrightText?: string | null;
+    additionalLinks?:
+      | {
+          label: string;
+          link: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Select the page to display as the home page
+   */
+  homePage?: (string | null) | Page;
+  maintenance?: {
+    enabled?: boolean | null;
+    message?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  siteDescription?: T;
+  logo?: T;
+  favicon?: T;
+  socialLinks?:
+    | T
+    | {
+        facebook?: T;
+        instagram?: T;
+        twitter?: T;
+        linkedin?: T;
+        email?: T;
+      };
+  navigation?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        order?: T;
+        id?: T;
+      };
+  footer?:
+    | T
+    | {
+        copyrightText?: T;
+        additionalLinks?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              id?: T;
+            };
+      };
+  homePage?: T;
+  maintenance?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

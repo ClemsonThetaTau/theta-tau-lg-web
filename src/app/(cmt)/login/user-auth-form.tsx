@@ -4,18 +4,15 @@ import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 
-import { db } from '@/firebase/firebase'
-import { doc, getDoc } from 'firebase/firestore'
-import { signIn } from '@/firebase/auth'
+import { useAuth } from '@/lib/auth-context'
 
 import { cn } from '@/lib/utils'
 import { ImSpinner3 } from 'react-icons/im'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ToastAction } from '@/components/ui/toast'
-import { useToast } from '@/components/ui/use-toast'
-import { AuthError } from 'firebase/auth';
+import { Button } from '@/components/ui/data-entry/button'
+import { Input } from '@/components/ui/data-entry/input'
+import { Label } from '@/components/ui/forms/label'
+import { ToastAction } from '@/components/ui/feedback/toast'
+import { useToast } from '@/components/ui/feedback/use-toast'
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -23,6 +20,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { toast } = useToast()
   const { push } = useRouter();
+  const { signIn } = useAuth()
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault()
@@ -38,8 +36,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     if (error != null) {
       setIsLoading(false)
       toast({
-        title: 'Error Logging In: ',
-        description: (error as AuthError).message,
+        title: 'Error Logging In',
+        description: typeof error === 'string' ? error : 'Failed to login',
       })
     } else {
       push('/dashboard/settings/profile')

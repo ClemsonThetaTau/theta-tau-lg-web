@@ -2,9 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { auth, db } from '@/firebase/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
-import { collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 import { UserInfo, createColumns } from './columns'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { SkeletonForm } from '@/components/ui/feedback/skeleton-form'
@@ -17,57 +15,68 @@ import { UserEditModal } from './user-edit-modal'
 
 export default function UsersPage() {
   const { push } = useRouter()
+  const { user, loading } = useAuth()
   const [users, setUsers] = useState<UserInfo[]>()
   const [editingUser, setEditingUser] = useState<UserInfo | null>(null)
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'users'))
-        const usersArray = querySnapshot.docs.map(
-          (doc) =>
-            ({
-              id: doc.id,
-              ...doc.data(),
-            } as UserInfo)
-        )
-        setUsers(usersArray)
-      } catch (error) {
-        console.error('Error fetching users: ', error)
-      }
+    if (!loading && !user) {
+      push('/login')
+      return
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await fetchUsers()
-      } else {
-        push('/login')
+    if (user) {
+      const fetchUsers = async () => {
+        try {
+          const response = await fetch('/api/users')
+          const result = await response.json()
+          const usersArray = result.docs.map((doc: any) => ({
+            id: doc.id,
+            firstName: doc.firstName,
+            lastName: doc.lastName,
+            email: doc.email,
+            major: doc.major,
+            badgeNumber: doc.badgeNumber,
+            pledgeClass: doc.pledgeClass,
+            status: doc.status,
+            phone: doc.phone,
+            graduationYear: doc.graduationYear,
+            role: doc.role,
+          } as UserInfo))
+          setUsers(usersArray)
+        } catch (error) {
+          console.error('Error fetching users: ', error)
+        }
       }
-    })
 
-    return () => unsubscribe()
-  }, [push])
+      fetchUsers()
+    }
+  }, [user, loading, push])
 
   const handleDataChange = async (newData: UserInfo[]) => {
     try {
-      // Find new users (ones without IDs in Firestore)
       const existingIds = (users || []).map((user) => user.id)
       const newUsers = newData.filter((user) => !existingIds.includes(user.id))
 
-      // Add new users to Firestore
+      // Add new users to Payload
       for (const user of newUsers) {
-        const userDoc = doc(collection(db, 'users'))
-        await setDoc(userDoc, {
-          ...user,
-          id: userDoc.id,
+        await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(user),
         })
       }
 
       // Update existing users
       const updatedUsers = newData.filter((user) => existingIds.includes(user.id))
       for (const user of updatedUsers) {
-        const userDoc = doc(db, 'users', user.id)
-        await updateDoc(userDoc, user)
+        await fetch(`/api/users/${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(user),
+        })
       }
 
       setUsers(newData)

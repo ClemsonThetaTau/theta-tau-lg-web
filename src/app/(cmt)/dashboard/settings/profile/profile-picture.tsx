@@ -6,7 +6,7 @@ import { ImSpinner3 } from 'react-icons/im'
 
 import heic2any from 'heic2any'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/data-entry/button'
 import {
   Dialog,
   DialogContent,
@@ -15,19 +15,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { toast } from '@/components/ui/use-toast'
+} from '@/components/ui/overlay/dialog'
+import { toast } from '@/components/ui/feedback/use-toast'
 import { getCroppedImg } from '@/lib/crop-image'
 
-import { storage, db, auth } from '@/firebase/firebase'
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { doc, setDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 
 type ProfilePictureProps = {
   url: string
 }
 
 const ProfilePicture = ({ url }: ProfilePictureProps) => {
+  const { user } = useAuth()
   const [img, setImg] = useState<File | null>(null)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
@@ -95,35 +94,45 @@ const ProfilePicture = ({ url }: ProfilePictureProps) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   const uploadProfilePicture = async () => {
-    if (!img || !croppedAreaPixels) return
+    if (!img || !croppedAreaPixels || !user) return
 
     setIsLoading(true)
 
     try {
       const croppedImage = await getCroppedImg(URL.createObjectURL(img), croppedAreaPixels)
 
-      const user = auth.currentUser
+      // Upload to Payload media collection
+      const formData = new FormData()
+      formData.append('file', croppedImage, `profile-${user.id}.jpg`)
+      formData.append('alt', `${user.firstName} ${user.lastName} profile picture`)
 
-      if (!user) {
-        throw new Error('User is not authenticated')
+      const uploadResponse = await fetch('/api/media', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image')
       }
 
-      const storageRef = ref(storage, `profile-pictures/${user.uid}.jpg`)
-      const uploadTask = uploadBytesResumable(storageRef, croppedImage)
+      const uploadResult = await uploadResponse.json()
+      const mediaId = uploadResult.doc.id
 
-      uploadTask.on('state_changed', () => { }, (error) => {
-        console.error(error)
-        toast({ title: 'Error', description: 'Unable to upload profile picture' })
-        setIsLoading(false)
-      }, async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-        const userDoc = doc(db, 'users', user.uid)
-        await setDoc(userDoc, { profilePicture: downloadURL }, { merge: true })
-        toast({ title: 'Success', description: 'Profile picture updated' })
-        
-        setOpen(false)
-        setIsLoading(false)
+      // Update user with new profile picture
+      await fetch(`/api/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ profilePicture: mediaId }),
       })
+
+      toast({ title: 'Success', description: 'Profile picture updated' })
+      setOpen(false)
+      setIsLoading(false)
+      
+      // Reload page to show new image
+      window.location.reload()
     } catch (error) {
       console.error(error)
       toast({ title: 'Error', description: 'Something went wrong' })

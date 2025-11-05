@@ -3,10 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { auth } from '@/firebase/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
-import { db } from '@/firebase/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 
 import { SkeletonForm } from '@/components/ui/skeleton-form'
 import { Separator } from "@/components/ui/separator"
@@ -14,31 +11,37 @@ import { AccountForm, ProfileFormValues } from "./account-form"
 
 export default function SettingsAccountPage() {
   const { push } = useRouter()
+  const { user, loading } = useAuth()
   const [badgeNumber, setBadgeNumber] = useState<string>('')
   const [profileFormDefaultValues, setProfileFormDefaultValues] = useState<ProfileFormValues>();
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid
-        const userData = await getDoc(doc(db, 'users', uid))
+    if (!loading && !user) {
+      push('/login')
+      return
+    }
 
-        if (userData.exists()) {
-          const data = userData.data()
+    if (user) {
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(`/api/users/${user.id}`)
+          const data = await response.json()
 
           setBadgeNumber(data.badgeNumber)
 
           setProfileFormDefaultValues({
-            gradYear: data.gradYear,
+            gradYear: data.graduationYear,
             major: data.major,
             status: data.status,
           })
+        } catch (error) {
+          console.error('Error fetching user data:', error)
         }
-      } else {
-        push('/login')
       }
-    })
-  }, [])
+
+      fetchUserData()
+    }
+  }, [user, loading, push])
 
   return (
     <div className="space-y-6">

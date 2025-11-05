@@ -5,9 +5,11 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Users } from './collections/Users'
-import { Brothers } from './collections/Brothers'
 import { Officers } from './collections/Officers'
 import { Media } from './collections/Media'
+import { Pages } from './collections/Pages'
+import { Blog } from './collections/Blog'
+import { Settings } from './collections/Settings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -18,8 +20,14 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      // Add custom navigation items
+      beforeNavLinks: [],
+      afterNavLinks: [],
+    },
   },
-  collections: [Users, Brothers, Officers, Media],
+  collections: [Users, Officers, Media, Pages, Blog],
+  globals: [Settings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

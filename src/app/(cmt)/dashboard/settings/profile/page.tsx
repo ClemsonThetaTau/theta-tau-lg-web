@@ -4,10 +4,7 @@ import { useState, useEffect } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import { auth } from '@/firebase/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
-import { db, storage } from '@/firebase/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/auth-context'
 
 import { Separator } from "@/components/ui/separator"
 import { ProfilePicture } from "./profile-picture"
@@ -16,21 +13,29 @@ import { SkeletonForm } from '@/components/ui/skeleton-form'
 
 export default function SettingsProfilePage() {
   const { push } = useRouter()
+  const { user, loading } = useAuth()
 
   const [profilePicture, setProfilePicture] = useState<string>()
   const [defaultValues, setDefaultValues] = useState<Partial<ProfileFormValues>>()
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid
-        const userData = await getDoc(doc(db, 'users', uid))
+    if (!loading && !user) {
+      push('/login')
+      return
+    }
 
-        if (userData.exists()) {
-          console.log('Document data:', userData.data())
-          const data = userData.data()
+    if (user) {
+      // Fetch full user data from Payload
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(`/api/users/${user.id}`)
+          const data = await response.json()
 
-          setProfilePicture(data.profilePicture)
+          const profilePictureUrl = typeof data.profilePicture === 'object' 
+            ? data.profilePicture.url 
+            : data.profilePicture
+
+          setProfilePicture(profilePictureUrl)
           const defaultValues: Partial<ProfileFormValues> = {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -38,12 +43,14 @@ export default function SettingsProfilePage() {
           }
 
           setDefaultValues(defaultValues)
+        } catch (error) {
+          console.error('Error fetching user data:', error)
         }
-      } else {
-        push('/login')
       }
-    })
-  }, [])
+
+      fetchUserData()
+    }
+  }, [user, loading, push])
 
   return (
     <div className="space-y-6">

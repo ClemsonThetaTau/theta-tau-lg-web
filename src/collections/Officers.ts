@@ -4,110 +4,112 @@ export const Officers: CollectionConfig = {
   slug: 'officers',
   admin: {
     useAsTitle: 'positionName',
-    defaultColumns: ['positionName', 'user', 'type', 'isActive'],
+    defaultColumns: ['positionName', 'user', 'type', 'isActive', 'displayOrder'],
+    listSearchableFields: ['positionName'],
+    group: 'Chapter Management',
+    description: 'Create officers here, then use the CMT Dashboard at /dashboard/settings/web-chair/officers-and-chairs to arrange their order with drag-and-drop.',
   },
   fields: [
     {
-      name: 'positionName',
-      type: 'text',
-      required: true,
-      admin: {
-        description: 'Name of the position (e.g., "Regent", "Vice Regent", "Social Chair")',
-      },
+      type: 'row',
+      fields: [
+        {
+          name: 'user',
+          type: 'relationship',
+          relationTo: 'users',
+          required: true,
+          admin: {
+            width: '60%',
+            description: 'User who holds this position',
+          },
+        },
+        {
+          name: 'isActive',
+          type: 'checkbox',
+          defaultValue: true,
+          admin: {
+            width: '40%',
+            description: 'Currently active position',
+          },
+        },
+      ],
     },
-    {
-      name: 'user',
-      type: 'relationship',
-      relationTo: 'users',
-      required: true,
-      admin: {
-        description: 'User who holds this position',
-      },
-    },
+    
     {
       name: 'type',
       type: 'select',
       required: true,
       options: [
-        {
-          label: 'Executive Committee',
-          value: 'ec',
-        },
-        {
-          label: 'Chair Position',
-          value: 'chair',
-        },
+        { label: 'Executive Committee', value: 'ec' },
+        { label: 'Chair Position', value: 'chair' },
       ],
       admin: {
-        description: 'Whether this is an Executive Committee position or a Chair position',
+        description: 'Position type',
       },
     },
+    
+    {
+      name: 'positionName',
+      type: 'text',
+      required: true,
+      admin: {
+        description: 'e.g., "Regent", "Social Chair", "Webmaster"',
+      },
+    },
+    
     {
       name: 'ecPosition',
       type: 'select',
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'ec',
-        description: 'Specific Executive Committee position',
+        description: 'Select EC position (for Executive Committee only)',
       },
       options: [
-        {
-          label: 'Regent',
-          value: 'regent',
-        },
-        {
-          label: 'Vice Regent',
-          value: 'viceRegent',
-        },
-        {
-          label: 'Scribe',
-          value: 'scribe',
-        },
-        {
-          label: 'Treasurer',
-          value: 'treasurer',
-        },
-        {
-          label: 'Corresponding Secretary',
-          value: 'correspondingSecretary',
-        },
-        {
-          label: 'Delegate at Large',
-          value: 'delegateAtLarge',
-        },
-        {
-          label: 'New Member Educator',
-          value: 'newMemberEducator',
-        },
+        { label: 'Regent', value: 'regent' },
+        { label: 'Vice Regent', value: 'viceRegent' },
+        { label: 'Scribe', value: 'scribe' },
+        { label: 'Treasurer', value: 'treasurer' },
+        { label: 'Corresponding Secretary', value: 'correspondingSecretary' },
+        { label: 'Delegate at Large', value: 'delegateAtLarge' },
+        { label: 'New Member Educator', value: 'newMemberEducator' },
       ],
     },
-    {
-      name: 'isActive',
-      type: 'checkbox',
-      defaultValue: true,
-      admin: {
-        description: 'Whether this position assignment is currently active',
-      },
-    },
-    {
-      name: 'termStart',
-      type: 'date',
-      admin: {
-        description: 'When this person started in this position',
-      },
-    },
-    {
-      name: 'termEnd',
-      type: 'date',
-      admin: {
-        description: 'When this person\'s term ends (optional)',
-      },
-    },
+    
     {
       name: 'displayOrder',
       type: 'number',
+      defaultValue: 0,
       admin: {
-        description: 'Order for displaying positions (lower numbers first)',
+        description: 'Display order - lower numbers appear first. Use the CMT Dashboard for drag-and-drop reordering.',
       },
+    },
+    
+    {
+      type: 'collapsible',
+      label: 'Term Information',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'termStart',
+              type: 'date',
+              admin: {
+                width: '50%',
+                description: 'Term start date',
+              },
+            },
+            {
+              name: 'termEnd',
+              type: 'date',
+              admin: {
+                width: '50%',
+                description: 'Term end date (optional)',
+              },
+            },
+          ],
+        },
+      ],
     },
   ],
   access: {
