@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { admins, anyone } from '../access'
 
 export const Settings: GlobalConfig = {
   slug: 'settings',
@@ -127,10 +128,8 @@ export const Settings: GlobalConfig = {
     },
   ],
   access: {
-    // Anyone can read settings
-    read: () => true,
-    // Only admins can update site settings
-    update: ({ req: { user } }) => user?.role === 'admin',
+    read: anyone,
+    update: admins,
   },
 }
 

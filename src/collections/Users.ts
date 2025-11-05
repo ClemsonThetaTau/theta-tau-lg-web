@@ -1,11 +1,20 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Access } from 'payload'
+import { admins, adminsOrSelf, adminsOrFirstUser, publicBrothersOrSelfOrAdmins } from '../access'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true,
+  auth: {
+    tokenExpiration: 7200, // 2 hours
+    verify: false,
+    maxLoginAttempts: 5,
+    lockTime: 600 * 1000, // 10 minutes
+    useAPIKey: false,
+    depth: 2,
+  },
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['firstName', 'lastName', 'status', 'role'],
+    group: 'Chapter Management',
   },
   fields: [
     // Profile Picture at the top
@@ -200,81 +209,20 @@ export const Users: CollectionConfig = {
       },
       access: {
         // Only admins can change roles
-        update: ({ req: { user } }) => user?.role === 'admin',
+        update: ({ req: { user } }) => {
+          if (user && user.role === 'admin') {
+            return true
+          }
+          return false
+        },
       },
     },
   ],
   access: {
-    // Only admins can create new users
-    create: ({ req: { user } }) => user?.role === 'admin',
-    
-    // Read access: Admins see all, users see themselves, public sees displayOnWebsite users
-    read: ({ req: { user } }) => {
-      // Admins can see all
-      if (user?.role === 'admin') {
-        return true
-      }
-      
-      // Logged-in users can see their own data
-      if (user) {
-        return {
-          or: [
-            {
-              id: {
-                equals: user.id,
-              },
-            },
-            // Plus public profiles
-            {
-              and: [
-                {
-                  displayOnWebsite: {
-                    equals: true,
-                  },
-                },
-                {
-                  status: {
-                    in: ['active', 'alumni'],
-                  },
-                },
-              ],
-            },
-          ],
-        }
-      }
-      
-      // Public can only see displayed active/alumni members
-      return {
-        and: [
-          {
-            displayOnWebsite: {
-              equals: true,
-            },
-          },
-          {
-            status: {
-              in: ['active', 'alumni'],
-            },
-          },
-        ],
-      }
-    },
-    
-    // Update: Admins can update all, users can update themselves
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin') {
-        return true
-      }
-      // Users can only update their own profile
-      return {
-        id: {
-          equals: user?.id,
-        },
-      }
-    },
-    
-    // Only admins can delete users
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    create: adminsOrFirstUser,
+    read: publicBrothersOrSelfOrAdmins,
+    update: adminsOrSelf,
+    delete: admins,
   },
   hooks: {
     beforeChange: [

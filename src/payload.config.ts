@@ -40,8 +40,6 @@ export default buildConfig({
     user: Users.slug,
     meta: {
       titleSuffix: '- Theta Tau Lambda Gamma',
-      favicon: '/icon.ico',
-      ogImage: '/images/logo-2.png',
     },
     livePreview: {
       // Enable live preview for all collections that support it

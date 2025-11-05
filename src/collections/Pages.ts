@@ -1,10 +1,12 @@
 import type { CollectionConfig } from 'payload'
+import { admins, adminsOrPublished } from '../access'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'status', 'showInNav', 'updatedAt'],
+    group: 'Chapter Management',
     livePreview: {
       url: ({ data }) => {
         return `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/${data.slug}`
@@ -449,20 +451,9 @@ export const Pages: CollectionConfig = {
     },
   ],
   access: {
-    // Admins see all pages, public only sees published
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin') {
-        return true
-      }
-      return {
-        status: {
-          equals: 'published',
-        },
-      }
-    },
-    // Only admins can manage pages
-    create: ({ req: { user } }) => user?.role === 'admin',
-    update: ({ req: { user } }) => user?.role === 'admin',
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    read: adminsOrPublished,
+    create: admins,
+    update: admins,
+    delete: admins,
   },
 }

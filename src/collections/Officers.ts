@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { admins, anyone } from '../access'
 
 export const Officers: CollectionConfig = {
   slug: 'officers',
@@ -7,7 +8,6 @@ export const Officers: CollectionConfig = {
     defaultColumns: ['positionName', 'user', 'type', 'isActive', 'displayOrder'],
     listSearchableFields: ['positionName'],
     group: 'Chapter Management',
-    description: '',
   },
   fields: [
     {
@@ -122,11 +122,9 @@ export const Officers: CollectionConfig = {
     },
   ],
   access: {
-    // Public can read, admins can see all
-    read: () => true,
-    // Only admins can manage positions
-    create: ({ req: { user } }) => Boolean(user),
-    update: ({ req: { user } }) => Boolean(user),
-    delete: ({ req: { user } }) => Boolean(user),
+    read: anyone,
+    create: admins,
+    update: admins,
+    delete: admins,
   },
 }

@@ -1,10 +1,12 @@
 import type { CollectionConfig } from 'payload'
+import { admins, adminsOrPublished, adminsOrAuthor, loggedIn } from '../access'
 
 export const Blog: CollectionConfig = {
   slug: 'blog',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'author', 'status', 'publishedDate'],
+    group: 'Chapter Management',
   },
   versions: {
     drafts: true,
@@ -173,32 +175,10 @@ export const Blog: CollectionConfig = {
     },
   ],
   access: {
-    // Admins see all, public only sees published
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin') {
-        return true
-      }
-      return {
-        status: {
-          equals: 'published',
-        },
-      }
-    },
-    // Authenticated users can create posts (as drafts)
-    create: ({ req: { user } }) => Boolean(user),
-    // Authors can update their own posts, admins can update all
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin') {
-        return true
-      }
-      return {
-        author: {
-          equals: user?.id,
-        },
-      }
-    },
-    // Only admins can delete posts
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    read: adminsOrPublished,
+    create: loggedIn,
+    update: adminsOrAuthor,
+    delete: admins,
   },
 }
 
