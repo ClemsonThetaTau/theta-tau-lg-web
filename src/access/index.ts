@@ -1,16 +1,46 @@
-import type { Access } from 'payload'
+import type { Access, PayloadRequest } from 'payload'
+
+const ensureAuthenticatedUser = async (
+  req: PayloadRequest,
+): Promise<PayloadRequest['user'] | null> => {
+  if (req.user) {
+    return req.user
+  }
+
+  if (typeof req.payload?.auth === 'function') {
+    try {
+      const authResult = await req.payload.auth({
+        canSetHeaders: false,
+        headers: req.headers,
+        req,
+      })
+
+      if (authResult?.user) {
+        req.user = authResult.user
+        return authResult.user
+      }
+    } catch (error) {
+      req.payload?.logger?.debug?.(
+        'Failed to hydrate user from auth strategies during access control check',
+        { error },
+      )
+    }
+  }
+
+  return null
+}
 
 /**
  * Admins have full access
  * Following Payload's recommended pattern
  */
-export const admins: Access = ({ req: { user } }) => {
-  // Scenario 1 - Check if user has the 'admin' role
+export const admins: Access = async ({ req }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user && user.role === 'admin') {
     return true
   }
-  
-  // Scenario 2 - Disallow all others
+
   return false
 }
 
@@ -18,20 +48,17 @@ export const admins: Access = ({ req: { user } }) => {
  * Only admins or the user themselves can access
  * Following Payload's recommended pattern
  */
-export const adminsOrSelf: Access = ({ req: { user }, id }) => {
-    console.log('adminsOrSelf', user, id)
-    console.log('user is admin', user?.role === 'admin')
-  // Scenario 1 - Check if user has the 'admin' role
+export const adminsOrSelf: Access = async ({ req, id }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user && user.role === 'admin') {
     return true
   }
-  
-  // Scenario 2 - Allow only if user is accessing their own document
+
   if (user && id) {
     return user.id === id
   }
-  
-  // Scenario 3 - Disallow all others
+
   return false
 }
 
@@ -39,13 +66,13 @@ export const adminsOrSelf: Access = ({ req: { user }, id }) => {
  * Public can read published content, admins can read all
  * Following Payload's recommended pattern
  */
-export const adminsOrPublished: Access = ({ req: { user } }) => {
-  // Scenario 1 - Admins can see everything
+export const adminsOrPublished: Access = async ({ req }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user && user.role === 'admin') {
     return true
   }
-  
-  // Scenario 2 - Public can only see published content
+
   return {
     status: {
       equals: 'published',
@@ -57,13 +84,13 @@ export const adminsOrPublished: Access = ({ req: { user } }) => {
  * Authors can access their own content, admins can access all
  * Following Payload's recommended pattern
  */
-export const adminsOrAuthor: Access = ({ req: { user } }) => {
-  // Scenario 1 - Check if user has the 'admin' role
+export const adminsOrAuthor: Access = async ({ req }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user && user.role === 'admin') {
     return true
   }
-  
-  // Scenario 2 - Allow only documents where user is the author
+
   if (user) {
     return {
       author: {
@@ -71,8 +98,7 @@ export const adminsOrAuthor: Access = ({ req: { user } }) => {
       },
     }
   }
-  
-  // Scenario 3 - Disallow all others
+
   return false
 }
 
@@ -80,19 +106,24 @@ export const adminsOrAuthor: Access = ({ req: { user } }) => {
  * For auth collections - allow first user creation, then only admins
  * Following Payload's recommended pattern
  */
-export const adminsOrFirstUser: Access = ({ req: { user } }) => {
-  // Scenario 1 - Allow first user creation (when no user is logged in)
-  if (!user) {
-    return true
-  }
-  
-  // Scenario 2 - After that, only admins can create users
+export const adminsOrFirstUser: Access = async ({ req }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user && user.role === 'admin') {
     return true
   }
-  
-  // Scenario 3 - Disallow all others
-  return false
+
+  if (user) {
+    return false
+  }
+
+  const adminUserCollection = req.payload.config.admin.user
+  const { totalDocs } = await req.payload.count({
+    collection: adminUserCollection,
+    overrideAccess: true,
+  })
+
+  return totalDocs === 0
 }
 
 /**
@@ -106,13 +137,13 @@ export const anyone: Access = () => {
  * Only logged-in users can access
  * Following Payload's recommended pattern
  */
-export const loggedIn: Access = ({ req: { user } }) => {
-  // Scenario 1 - Allow if user is logged in
+export const loggedIn: Access = async ({ req }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user) {
     return true
   }
-  
-  // Scenario 2 - Disallow if not logged in
+
   return false
 }
 
@@ -122,13 +153,13 @@ export const loggedIn: Access = ({ req: { user } }) => {
  * Admins can see everything
  * Following Payload's recommended pattern
  */
-export const publicBrothersOrSelfOrAdmins = (({ req: { user } }) => {
-  // Scenario 1 - Admins can see everyone
+export const publicBrothersOrSelfOrAdmins = (async ({ req }) => {
+  const user = await ensureAuthenticatedUser(req)
+
   if (user && user.role === 'admin') {
     return true
   }
-  
-  // Scenario 2 - Logged-in users can see their own data + public profiles
+
   if (user) {
     return {
       or: [
@@ -137,7 +168,6 @@ export const publicBrothersOrSelfOrAdmins = (({ req: { user } }) => {
             equals: user.id,
           },
         },
-        // Plus public profiles
         {
           and: [
             {
@@ -155,8 +185,7 @@ export const publicBrothersOrSelfOrAdmins = (({ req: { user } }) => {
       ],
     }
   }
-  
-  // Scenario 3 - Public can only see displayed active/alumni members
+
   return {
     and: [
       {
