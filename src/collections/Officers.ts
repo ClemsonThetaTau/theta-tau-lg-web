@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { admins, anyone } from '../access'
 
 export const Officers: CollectionConfig = {
   slug: 'officers',
@@ -7,45 +8,44 @@ export const Officers: CollectionConfig = {
     defaultColumns: ['positionName', 'user', 'type', 'isActive', 'displayOrder'],
     listSearchableFields: ['positionName'],
     group: 'Chapter Management',
-    description: 'Create officers here, then use the CMT Dashboard at /dashboard/settings/web-chair/officers-and-chairs to arrange their order with drag-and-drop.',
   },
   fields: [
+    {
+      name: 'user',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      admin: {
+        description: 'User who holds this position',
+      },
+    },
+    
     {
       type: 'row',
       fields: [
         {
-          name: 'user',
-          type: 'relationship',
-          relationTo: 'users',
+          name: 'type',
+          type: 'select',
           required: true,
+          options: [
+            { label: 'Executive Committee', value: 'executive-committee' },
+            { label: 'Chair Position', value: 'committee-chair' },
+          ],
           admin: {
-            width: '60%',
-            description: 'User who holds this position',
+            width: '50%',
+            description: 'Position type',
           },
         },
         {
-          name: 'isActive',
-          type: 'checkbox',
-          defaultValue: true,
+          name: 'displayOrder',
+          type: 'number',
+          defaultValue: 0,
           admin: {
-            width: '40%',
-            description: 'Currently active position',
+            width: '50%',
+            description: 'Display order - lower numbers appear first',
           },
         },
       ],
-    },
-    
-    {
-      name: 'type',
-      type: 'select',
-      required: true,
-      options: [
-        { label: 'Executive Committee', value: 'ec' },
-        { label: 'Chair Position', value: 'chair' },
-      ],
-      admin: {
-        description: 'Position type',
-      },
     },
     
     {
@@ -61,7 +61,7 @@ export const Officers: CollectionConfig = {
       name: 'ecPosition',
       type: 'select',
       admin: {
-        condition: (_, siblingData) => siblingData?.type === 'ec',
+        condition: (_, siblingData) => siblingData?.type === 'executive-committee',
         description: 'Select EC position (for Executive Committee only)',
       },
       options: [
@@ -75,64 +75,56 @@ export const Officers: CollectionConfig = {
       ],
     },
     
+    // Term Information
     {
-      name: 'displayOrder',
-      type: 'number',
-      defaultValue: 0,
-      admin: {
-        description: 'Display order - lower numbers appear first. Use the CMT Dashboard for drag-and-drop reordering.',
-      },
-    },
-    
-    {
-      type: 'collapsible',
-      label: 'Term Information',
+      type: 'row',
       fields: [
         {
-          type: 'row',
-          fields: [
-            {
-              name: 'termStart',
-              type: 'date',
-              admin: {
-                width: '50%',
-                description: 'Term start date',
-              },
-            },
-            {
-              name: 'termEnd',
-              type: 'date',
-              admin: {
-                width: '50%',
-                description: 'Term end date (optional)',
-              },
-            },
-          ],
+          name: 'termStart',
+          type: 'date',
+          required: true,
+          admin: {
+            width: '50%',
+            description: 'Term start date',
+          },
+        },
+        {
+          name: 'termEnd',
+          type: 'date',
+          admin: {
+            width: '50%',
+            description: 'Term end date (leave empty for current position)',
+          },
         },
       ],
     },
+    
+    // Virtual field to show if active (computed from dates)
+    {
+      name: 'isActive',
+      type: 'checkbox',
+      admin: {
+        readOnly: true,
+        description: 'Auto-computed: position is active if no end date or end date is in the future',
+        position: 'sidebar',
+      },
+      hooks: {
+        beforeChange: [
+          ({ siblingData }) => {
+            // Auto-calculate based on term dates
+            const now = new Date()
+            const hasStarted = !siblingData.termStart || new Date(siblingData.termStart) <= now
+            const hasNotEnded = !siblingData.termEnd || new Date(siblingData.termEnd) >= now
+            return hasStarted && hasNotEnded
+          },
+        ],
+      },
+    },
   ],
   access: {
-    // Public can read active positions
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
-        return true
-      }
-      return {
-        isActive: {
-          equals: true,
-        },
-      }
-    },
-    // Only web-chairs and admins can manage positions
-    create: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
-    update: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    read: anyone,
+    create: admins,
+    update: admins,
+    delete: admins,
   },
 }

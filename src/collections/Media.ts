@@ -1,9 +1,11 @@
 import type { CollectionConfig } from 'payload'
+import { admins, anyone, loggedIn } from '../access'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'filename',
+    group: 'Chapter Management',
   },
   upload: {
     staticDir: 'public/media',
@@ -47,13 +49,9 @@ export const Media: CollectionConfig = {
     },
   ],
   access: {
-    // Public can read media
-    read: () => true,
-    // Only authenticated users can create/update/delete
-    create: ({ req: { user } }) => !!user,
-    update: ({ req: { user } }) => !!user,
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    read: anyone,
+    create: loggedIn,
+    update: loggedIn,
+    delete: admins,
   },
 }

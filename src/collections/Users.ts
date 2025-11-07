@@ -1,11 +1,20 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Access } from 'payload'
+import { admins, adminsOrSelf, adminsOrFirstUser, publicBrothersOrSelfOrAdmins } from '../access'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true,
+  auth: {
+    tokenExpiration: 7200, // 2 hours
+    verify: false,
+    maxLoginAttempts: 5,
+    lockTime: 600 * 1000, // 10 minutes
+    useAPIKey: false,
+    depth: 2,
+  },
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['firstName', 'lastName', 'status', 'role'],
+    group: 'Chapter Management',
   },
   fields: [
     // Profile Picture at the top
@@ -183,83 +192,37 @@ export const Users: CollectionConfig = {
       ],
     },
     
-    // System Role
+    // System Role (Payload standard)
     {
-      type: 'collapsible',
-      label: 'System Permissions',
+      name: 'role',
+      type: 'select',
+      required: true,
+      defaultValue: 'user',
+      saveToJWT: true,
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'User', value: 'user' },
+      ],
       admin: {
-        condition: (data, siblingData, { user }) => {
-          return user?.role === 'admin' || user?.role === 'web-chair'
+        position: 'sidebar',
+        description: 'Admin: Full access. User: Can edit own profile only.',
+      },
+      access: {
+        // Only admins can change roles
+        update: ({ req: { user } }) => {
+          if (user && user.role === 'admin') {
+            return true
+          }
+          return false
         },
       },
-      fields: [
-        {
-          name: 'role',
-          type: 'select',
-          required: true,
-          defaultValue: 'member',
-          options: [
-            { label: 'Admin', value: 'admin' },
-            { label: 'Web Chair', value: 'web-chair' },
-            { label: 'Member', value: 'member' },
-          ],
-          admin: {
-            description: 'System access level (only admins and web chairs can change this)',
-          },
-        },
-      ],
     },
   ],
   access: {
-    // Only admins can create new users
-    create: ({ req: { user } }) => {
-      return user?.role === 'admin'
-    },
-    // Users can read their own data, web-chairs can read all, admins can read all
-    // Public can read users with displayOnWebsite=true and status active/alumni
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
-        return true
-      }
-      if (user) {
-        // Logged in users can see their own data
-        return {
-          id: {
-            equals: user?.id,
-          },
-        }
-      }
-      // Public can see displayed active/alumni members
-      return {
-        and: [
-          {
-            displayOnWebsite: {
-              equals: true,
-            },
-          },
-          {
-            status: {
-              in: ['active', 'alumni'],
-            },
-          },
-        ],
-      }
-    },
-    // Users can update their own data, web-chairs can update all, admins can update all
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
-        return true
-      }
-      return {
-        id: {
-          equals: user?.id,
-        },
-      }
-    },
-    // Only admins can delete users
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin'
-    },
+    create: adminsOrFirstUser,
+    read: publicBrothersOrSelfOrAdmins,
+    update: adminsOrSelf,
+    delete: admins,
   },
   hooks: {
     beforeChange: [

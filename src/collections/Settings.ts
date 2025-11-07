@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { admins, anyone } from '../access'
 
 export const Settings: GlobalConfig = {
   slug: 'settings',
@@ -127,10 +128,8 @@ export const Settings: GlobalConfig = {
     },
   ],
   access: {
-    read: () => true,
-    update: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    read: anyone,
+    update: admins,
   },
 }
 

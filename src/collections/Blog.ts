@@ -1,10 +1,12 @@
 import type { CollectionConfig } from 'payload'
+import { admins, adminsOrPublished, adminsOrAuthor, loggedIn } from '../access'
 
 export const Blog: CollectionConfig = {
   slug: 'blog',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'author', 'status', 'publishedDate'],
+    group: 'Chapter Management',
   },
   versions: {
     drafts: true,
@@ -173,34 +175,10 @@ export const Blog: CollectionConfig = {
     },
   ],
   access: {
-    // Public can read published posts
-    read: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
-        return true
-      }
-      return {
-        status: {
-          equals: 'published',
-        },
-      }
-    },
-    // Members can create blog posts (web-chairs and admins can publish)
-    create: ({ req: { user } }) => !!user,
-    // Authors can update their own posts, web-chairs and admins can update all
-    update: ({ req: { user } }) => {
-      if (user?.role === 'admin' || user?.role === 'web-chair') {
-        return true
-      }
-      return {
-        author: {
-          equals: user?.id,
-        },
-      }
-    },
-    // Only web-chairs and admins can delete posts
-    delete: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'web-chair'
-    },
+    read: adminsOrPublished,
+    create: loggedIn,
+    update: adminsOrAuthor,
+    delete: admins,
   },
 }
 
